@@ -4,6 +4,8 @@ import Swiper from 'react-native-swiper';
 import { useNavigation } from '@react-navigation/native';
 
 
+
+
 const { width,height } = Dimensions.get('window');
 
 const OnboardingScreen = () => {
@@ -62,11 +64,11 @@ const OnboardingScreen = () => {
           </Text>
         </TouchableOpacity>
 
-        {index !== 0 && (
+        {/* {index === 1 && (
           <TouchableOpacity onPress={() => navigation.navigate('LoginScreen')}>
             <Text style={styles.skip}>Skip</Text>
           </TouchableOpacity>
-        )}
+        )} */}
       </View>
     </View>
   );
@@ -96,7 +98,7 @@ const styles = StyleSheet.create({
   logo: {
     position: 'absolute',
     top: 83,    // Y position
-    left: 245,  
+    left: (width * 0.65),  
     width: 85,
     height: 25,
     resizeMode: 'contain',
@@ -135,7 +137,7 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     marginHorizontal: 4,
-    marginTop: 30,
+    marginTop: height*0.04,
   },
   activeDot: {
     backgroundColor: '#1A73E8',
@@ -143,14 +145,14 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     marginHorizontal: 4,
-    marginTop: 30,
+    marginTop: height*0.04,
   },
   button: {
-    backgroundColor: '#1A73E8',
+    backgroundColor: '#2D82DB',
     paddingVertical: 12,
     paddingHorizontal: 32,
     borderRadius: 50,
-    marginTop: 30,
+    marginBottom: height*0.1,
     alignSelf: 'center',
     elevation: 2,
   },
@@ -160,7 +162,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   skip: {
-    marginTop: 16,
+    marginTop: 1,
     color: '#1A73E8',
     fontSize: 14,
     textAlign: 'center',
