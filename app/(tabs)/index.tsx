@@ -5,6 +5,8 @@ import SplashRedirect from '../../component/SplashRedirect';
 import OnboardingScreen1 from '../../component/OnboardingScreen1';
 import LoginScreen from '../../component/LoginScreen';
 import SignUp from '../../component/SignUp';
+import SignIn from '../../component/SignIn';
+import ForgotPasswordScreen from '../../component/ForgotPasswordScreen'
 
 const Stack = createNativeStackNavigator();
 
@@ -15,7 +17,10 @@ const Index = () => {
       <Stack.Screen name="OnboardingScreen1" component={OnboardingScreen1} />
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="SignUp" component={SignUp} />
+      <Stack.Screen name="SignIn" component={SignIn} />
+      <Stack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen}/>
     </Stack.Navigator>
+    
   );
 };
 

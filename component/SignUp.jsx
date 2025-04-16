@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
 
 const { width,height } = Dimensions.get('window');
 const SignUp = () => {
+  const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
@@ -105,7 +107,7 @@ const SignUp = () => {
       </View>
 
       
-      <TouchableOpacity style={styles.login}>
+      <TouchableOpacity style={styles.login} onPress={() => navigation.navigate('SignIn')}>
         <Text style={styles.loginText}>
           I Already Have an Account <Text style={styles.link}>Login</Text>
         </Text>
