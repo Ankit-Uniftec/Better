@@ -9,6 +9,11 @@ dist/
 web-build/
 expo-env.d.ts
 
+# .gitignore
+.env
+*.json
+
+
 # Native
 *.orig.*
 *.jks
