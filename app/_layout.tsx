@@ -1,39 +1,155 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+/*import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
+import { ClerkProvider, useAuth, useUser } from '@clerk/clerk-expo';
+import { Slot, useRouter } from 'expo-router';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
+import { View, ActivityIndicator } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
+
+  const [appReady, setAppReady] = useState(false);
+  const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
   useEffect(() => {
-    if (loaded) {
+    if (fontsLoaded) {
+      setAppReady(true);
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [fontsLoaded]);
 
-  if (!loaded) {
-    return null;
-  }
+  if (!publishableKey || !fontsLoaded || !appReady) return null;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
+      <AuthGate>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <StatusBar style="auto" />
+          <Slot />
+        </ThemeProvider>
+      </AuthGate>
+    </ClerkProvider>
   );
 }
+
+// 👇 Custom gate to check user session and redirect accordingly
+function AuthGate({ children }: { children: React.ReactNode }) {
+  const { isSignedIn, isLoaded: authLoaded } = useAuth();
+  const { user, isLoaded: userLoaded } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoaded || !userLoaded) return;
+
+    if (!isSignedIn) {
+      router.replace('/LoginScreen');
+    } else {
+      const { gender, birthday } = user?.publicMetadata || {};
+      if (!gender || !birthday) {
+        router.replace('/PersonalInformation');
+      }
+      // else stay in app
+    }
+  }, [authLoaded, userLoaded, isSignedIn]);
+
+  if (!authLoaded || !userLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  return <>{children}</>;
+}*/
+
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect, useState } from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { ClerkProvider, useAuth, useUser } from '@clerk/clerk-expo';
+import { Slot, useRouter } from 'expo-router';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
+import { View, ActivityIndicator } from 'react-native';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+SplashScreen.preventAutoHideAsync();
+
+export default function RootLayout() {
+  const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
+  const colorScheme = useColorScheme();
+
+  const [appReady, setAppReady] = useState(false);
+  const [fontsLoaded] = useFonts({
+    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      setAppReady(true);
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!publishableKey || !fontsLoaded || !appReady) return null;
+
+  return (
+    <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
+      <AuthGate>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <StatusBar style="auto" />
+          <Slot />
+        </ThemeProvider>
+      </AuthGate>
+    </ClerkProvider>
+  );
+}
+
+function AuthGate({ children }: { children: React.ReactNode }) {
+  const { isSignedIn, isLoaded: authLoaded } = useAuth();
+  const { user, isLoaded: userLoaded } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoaded || !userLoaded) return;
+
+    if (!isSignedIn) {
+      router.replace('/LoginScreen');
+    } else {
+      const { firstName, lastName, publicMetadata } = user || {};
+      const { gender, birthday } = publicMetadata || {};
+
+      const isProfileComplete =
+        !!firstName && !!lastName && !!gender && !!birthday;
+
+      if (!isProfileComplete) {
+        router.replace('/PersonalInformation');
+      } else {
+        router.replace('../components/MainPage');
+      }
+    }
+  }, [authLoaded, userLoaded, isSignedIn]);
+
+  if (!authLoaded || !userLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  return <>{children}</>;
+}
+
