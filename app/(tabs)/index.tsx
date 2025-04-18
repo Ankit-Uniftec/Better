@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+/*import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashRedirect from '../../component/SplashRedirect';
@@ -25,6 +25,27 @@ const Index = () => {
 };
 
 export default Index;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});*/
+
+import { StyleSheet, Text, View } from 'react-native'
+import React from 'react'
+import MainPage from '../../component/MainPage'
+
+const index = () => {
+  return (
+    <View style={styles.container}>
+      {/* <InterestArea navigation={undefined}/> */}
+      <MainPage />
+    </View>
+  )
+}
+
+export default index
 
 const styles = StyleSheet.create({
   container: {
