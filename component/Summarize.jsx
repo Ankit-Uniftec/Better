@@ -1,4 +1,3 @@
-// components/Summarize.jsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';

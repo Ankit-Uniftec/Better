@@ -3,10 +3,13 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { useOAuth, useUser } from '@clerk/clerk-expo';
 import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
+import PersonalInformation from '@/component/PersonalInformation';
 
 const { width, height } = Dimensions.get('window');
 
 const LoginScreen = () => {
+  const navigation = useNavigation();
   const router = useRouter();
   const { isSignedIn, user } = useUser(); // Watch auth state
   const google = useOAuth({ strategy: 'oauth_google' });
@@ -27,7 +30,8 @@ const LoginScreen = () => {
     if (isSignedIn && user) {
       const { publicMetadata } = user;
       const hasInfo = publicMetadata?.birthday && publicMetadata?.gender;
-      router.replace(hasInfo ? '/(tabs)/' : '/PersonalInformation');
+      // router.replace(hasInfo ? '/(tabs)/' : '/PersonalInformation');
+      navigation.replace('PersonalInformation');
     }
   }, [isSignedIn, user]);
 

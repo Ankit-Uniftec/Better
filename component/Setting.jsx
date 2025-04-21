@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image,Dimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation,useRoute } from '@react-navigation/native';
 
 const {width,height}=Dimensions.get('window');
 const Settings = ({ navigation }) => {
@@ -54,29 +54,38 @@ const Settings = ({ navigation }) => {
   );
 };
 const BottomNavigation = () => {
-    const navigation = useNavigation();
-  
-    return (
-      <View style={styles.bottomNav}>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-          <Ionicons name="home-outline" size={24} color="#007BFF" />
-          <Text style={styles.navLabel}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Library')}>
-          <Ionicons name="library-outline" size={24} color="#999" />
-          <Text style={styles.navLabel}>Library</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Summarize')}>
-          <Ionicons name="document-text-outline" size={24} color="#999" />
-          <Text style={styles.navLabel}>Summarize</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-          <Ionicons name="person-outline" size={24} color="#999" />
-          <Text style={styles.navLabel}>Profile</Text>
-        </TouchableOpacity>
-      </View>
-    );
+  const navigation = useNavigation();
+
+  const route = useRoute();
+
+  const getIconColor = (screenName: string) => {
+    return route.name === screenName ? '#007BFF' : '#999';
   };
+
+  return (
+    <View style={styles.bottomNav}>
+      <TouchableOpacity onPress={() => navigation.navigate('MainPage')}>
+        <Ionicons name="home-outline" size={24} color={getIconColor('MainPage')} />
+        <Text style={[styles.navLabel, { color: getIconColor('MainPage') }]}>Home</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate('LibraryScreen')}>
+        <Ionicons name="library-outline" size={24} color={getIconColor('LibraryScreen')} />
+        <Text style={[styles.navLabel, { color: getIconColor('LibraryScreen') }]}>Library</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate('Summarize')}>
+        <Ionicons name="document-text-outline" size={24} color={getIconColor('Summarize')} />
+        <Text style={[styles.navLabel, { color: getIconColor('Summarize') }]}>Summarize</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+        <Ionicons name="person-outline" size={24} color={getIconColor('Profile')} />
+        <Text style={[styles.navLabel, { color: getIconColor('Profile') }]}>Profile</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
   
 
 const styles = StyleSheet.create({
