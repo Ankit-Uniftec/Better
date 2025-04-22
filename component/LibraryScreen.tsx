@@ -45,7 +45,7 @@ const LibraryScreen = () => {
             <Text style={styles.listText}>{list.name}</Text>
           </TouchableOpacity>
         ))}
-        {row.length < 2 && <View style={[styles.listButton, { backgroundColor: 'transparent' }]} />} {/* Spacer for alignment */}
+        {row.length < 2 && <View style={[styles.listButton, { backgroundColor: 'transparent' }]} />} 
       </View>
     ));
   };

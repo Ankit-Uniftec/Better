@@ -25,7 +25,7 @@ const Index = () => {
       <Stack.Screen name="SignUp" component={SignUp} />
       <Stack.Screen name="SignIn" component={SignIn} />
       <Stack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen} />
-      <Stack.Screen name="PersonalInformation" component={PersonalInformation} /> 
+      <Stack.Screen name="PersonalInformation" component={PersonalInformation} />  
       <Stack.Screen name="LibraryScreen" component={LibraryScreen} />
       <Stack.Screen name="CreateListScreen" component={CreateListScreen} />
       <Stack.Screen name="MainPage" component={MainPage} />
