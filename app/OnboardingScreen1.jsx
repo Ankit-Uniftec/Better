@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
-import Swiper from 'react-native-swiper';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
+import Swiper from "react-native-swiper";
+import { useNavigation } from "@react-navigation/native";
 
-
-
-
-const { width,height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 const OnboardingScreen = () => {
   const [index, setIndex] = useState(0);
@@ -28,7 +32,7 @@ const OnboardingScreen = () => {
     if (index < titles.length - 1) {
       setIndex(index + 1);
     } else {
-      navigation.navigate('LoginScreen');
+      navigation.navigate("LoginScreen");
     }
   };
 
@@ -36,7 +40,7 @@ const OnboardingScreen = () => {
     <View style={styles.container}>
       {/* Fixed Header */}
       <View style={styles.header}>
-        <Image source={require('../Images/logo1.png')} style={styles.logo} />
+        <Image source={require("../Images/logo1.png")} style={styles.logo} />
       </View>
 
       {/* Carousel Text */}
@@ -60,7 +64,7 @@ const OnboardingScreen = () => {
         {/* Fixed Buttons Below Text */}
         <TouchableOpacity style={styles.button} onPress={handleNext}>
           <Text style={styles.buttonText}>
-            {index === 0 ? 'Get started →' : 'Continue'}
+            {index === 0 ? "Get started →" : "Continue"}
           </Text>
         </TouchableOpacity>
 
@@ -79,92 +83,90 @@ export default OnboardingScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   header: {
-    backgroundColor: '#6ca9ee',
+    backgroundColor: "#6ca9ee",
     width: width * 1.5,
     height: height * 0.45,
     borderBottomRightRadius: 300,
     borderBottomLeftRadius: 300,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
+    alignItems: "center",
+    justifyContent: "flex-end",
     paddingBottom: 40,
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: -(width * 0.25),
     zIndex: 1,
   },
   logo: {
-    position: 'absolute',
-    top: 83,    // Y position
-    left: (width * 0.65),  
+    position: "absolute",
+    top: 83, // Y position
+    left: width * 0.65,
     width: 85,
     height: 25,
-    resizeMode: 'contain',
-    
-    marginTop: 10,
+    resizeMode: "contain",
 
-    
+    marginTop: 10,
   },
   carouselContainer: {
     marginTop: height * 0.45,
     flex: 1,
     paddingHorizontal: 24,
-    justifyContent: 'flex-start',
+    justifyContent: "flex-start",
   },
   slide: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#000',
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#000",
     marginTop: 20,
   },
   subtitle: {
     fontSize: 14,
-    color: '#777',
-    textAlign: 'center',
+    color: "#777",
+    textAlign: "center",
     marginTop: 16,
     lineHeight: 22,
     paddingHorizontal: 10,
   },
   dot: {
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
     width: 8,
     height: 8,
     borderRadius: 4,
     marginHorizontal: 4,
-    marginTop: height*0.04,
+    marginTop: height * 0.04,
   },
   activeDot: {
-    backgroundColor: '#1A73E8',
+    backgroundColor: "#1A73E8",
     width: 16,
     height: 8,
     borderRadius: 4,
     marginHorizontal: 4,
-    marginTop: height*0.04,
+    marginTop: height * 0.04,
   },
   button: {
-    backgroundColor: '#2D82DB',
+    backgroundColor: "#2D82DB",
     paddingVertical: 12,
     paddingHorizontal: 32,
     borderRadius: 50,
-    marginBottom: height*0.1,
-    alignSelf: 'center',
+    marginBottom: height * 0.1,
+    alignSelf: "center",
     elevation: 2,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 16,
   },
   skip: {
     marginTop: 1,
-    color: '#1A73E8',
+    color: "#1A73E8",
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

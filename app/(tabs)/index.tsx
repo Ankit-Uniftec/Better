@@ -2,16 +2,17 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import SplashRedirect from '../../component/SplashRedirect';
-import OnboardingScreen1 from '../../component/OnboardingScreen1';
+import SplashRedirect from '../SplashRedirect';
+import OnboardingScreen1 from '../OnboardingScreen1';
 import LoginScreen from '../LoginScreen';
-import SignUp from '../../component/SignUp';
-import SignIn from '../../component/SignIn';
-import ForgotPasswordScreen from '../../component/ForgotPasswordScreen';
-import PersonalInformation from '../../component/PersonalInformation';
-import LibraryScreen from '../../component/LibraryScreen'; 
-import CreateListScreen from '../../component/CreateListScreen'; 
-import MainPage from '../../component/MainPage'
+import SignUp from '../SignUp';
+import SignIn from '../SignIn';
+import ForgotPasswordScreen from '../ForgotPasswordScreen';
+import PersonalInformation from '../PersonalInformation';
+import LibraryScreen from '../LibraryScreen'; 
+import CreateListScreen from '../CreateListScreen'; 
+import MainPage from '../MainPage'
+import InterestArea from '../InterestArea'
 
 
 const Stack = createNativeStackNavigator();
@@ -29,6 +30,7 @@ const Index = () => {
       <Stack.Screen name="LibraryScreen" component={LibraryScreen} />
       <Stack.Screen name="CreateListScreen" component={CreateListScreen} />
       <Stack.Screen name="MainPage" component={MainPage} />
+      <Stack.Screen name="InterestArea" component={InterestArea} />
 
     </Stack.Navigator>
   );

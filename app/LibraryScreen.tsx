@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, Feather } from '@expo/vector-icons';
 
 const LibraryScreen = () => {
   const navigation = useNavigation<any>();
@@ -45,56 +45,65 @@ const LibraryScreen = () => {
             <Text style={styles.listText}>{list.name}</Text>
           </TouchableOpacity>
         ))}
-        {row.length < 2 && <View style={[styles.listButton, { backgroundColor: 'transparent' }]} />} 
+        {row.length < 2 && <View style={[styles.listButton, { backgroundColor: 'transparent' }]} />}
       </View>
     ));
   };
 
   return (
-    
-    <View style={{ flex: 1 }}>
-        <ScrollView style={styles.container}>
-      <TextInput placeholder="Search" style={styles.searchBar} />
 
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Your Summary Lists</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('CreateListScreen')}>
-            <Text style={styles.addLink}>+ Add List</Text>
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.container}>
+        <View style={styles.topBar}>
+          <Ionicons name="search" size={20} color="#aaa" style={{ marginLeft: 8 }} />
+          <TextInput placeholder="Search" style={styles.searchInput} />
+          <TouchableOpacity>
+            <Feather name="bell" size={20} color="#000" style={styles.icon} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Feather name="menu" size={20} color="#000" style={styles.icon} />
           </TouchableOpacity>
         </View>
 
-        {renderListRows()}
-      </View>
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Your Summary Lists</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('CreateListScreen')}>
+              <Text style={styles.addLink}>+ Add List</Text>
+            </TouchableOpacity>
+          </View>
 
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Public Lists - Betterfluencers</Text>
-          <TouchableOpacity><Text style={styles.addLink}>See more</Text></TouchableOpacity>
+          {renderListRows()}
         </View>
-        <View style={styles.cardRow}>
-          <View style={styles.card}><Image style={styles.cardImage} /><Text>Title</Text></View>
-          <View style={styles.card}><Image style={styles.cardImage} /><Text>Title</Text></View>
-        </View>
-      </View>
 
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Saved Summaries</Text>
-          <TouchableOpacity><Text style={styles.addLink}>See more</Text></TouchableOpacity>
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Public Lists - Betterfluencers</Text>
+            <TouchableOpacity><Text style={styles.addLink}>See more</Text></TouchableOpacity>
+          </View>
+          <View style={styles.cardRow}>
+            <View style={styles.card}><Image style={styles.cardImage} /><Text>Title</Text></View>
+            <View style={styles.card}><Image style={styles.cardImage} /><Text>Title</Text></View>
+          </View>
         </View>
-        <View style={styles.cardRow}>
-          <View style={styles.card}><Image style={styles.cardImage} /><Text>Title</Text></View>
-          <View style={styles.card}><Image style={styles.cardImage} /><Text>Title</Text></View>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Saved Summaries</Text>
+            <TouchableOpacity><Text style={styles.addLink}>See more</Text></TouchableOpacity>
+          </View>
+          <View style={styles.cardRow}>
+            <View style={styles.card}><Image style={styles.cardImage} /><Text>Title</Text></View>
+            <View style={styles.card}><Image style={styles.cardImage} /><Text>Title</Text></View>
+          </View>
         </View>
-      </View>
-    </ScrollView>
-    <BottomNavigation/>
+      </ScrollView>
+      <BottomNavigation />
     </View>
-    
-    
+
+
   );
-  
+
 };
 
 
@@ -135,15 +144,30 @@ const BottomNavigation = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
-  searchBar: {
-    backgroundColor: '#f0f0f0',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
+  container: { flex: 1, paddingTop: 50, backgroundColor: '#fff', },
+  topBar: {
+
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F1F1F1',
+    marginHorizontal: 16,
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    marginBottom: 10,
   },
+  searchInput: {
+    flex: 1,
+    padding: 10,
+    fontSize: 16,
+    color: '#000',
+  },
+  icon: {
+    marginHorizontal: 8,
+  },
+
   section: { marginBottom: 24 },
   sectionHeader: {
+    marginHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 12,
@@ -179,9 +203,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
   },
-  
+
   bottomNav: {
-    marginTop:0,
+    marginTop: 0,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',

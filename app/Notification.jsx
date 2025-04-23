@@ -1,56 +1,64 @@
-import React from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity,Dimensions } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import React from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 const notificationsData = [
   {
-    id: '1',
-    text: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-    time: '9:01 am',
-    section: 'Today',
-    avatar: require('../../Images/avtar.jpg'), 
+    id: "1",
+    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    time: "9:01 am",
+    section: "Today",
+    avatar: require("../Images/avtar.jpg"),
   },
   {
-    id: '2',
-    text: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-    time: '9:01 am',
-    section: 'Today',
-    avatar: require('../../Images/avtar.jpg'),
+    id: "2",
+    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    time: "9:01 am",
+    section: "Today",
+    avatar: require("../Images/avtar.jpg"),
   },
   {
-    id: '3',
-    text: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-    time: '9:01 am',
-    section: 'Today',
-    avatar: require('../../Images/avtar.jpg'),
+    id: "3",
+    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    time: "9:01 am",
+    section: "Today",
+    avatar: require("../Images/avtar.jpg"),
   },
   {
-    id: '4',
-    text: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-    time: '9:01 am',
-    section: 'Yesterday',
-    avatar: require('../../Images/avtar.jpg'),
+    id: "4",
+    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    time: "9:01 am",
+    section: "Yesterday",
+    avatar: require("../Images/avtar.jpg"),
   },
   {
-    id: '5',
-    text: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-    time: '9:01 am',
-    section: 'Yesterday',
-    avatar: require('../../Images/avtar.jpg'),
+    id: "5",
+    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    time: "9:01 am",
+    section: "Yesterday",
+    avatar: require("../Images/avtar.jpg"),
   },
   {
-    id: '6',
-    text: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-    time: '9:01 am',
-    section: 'Yesterday',
-    avatar: require('../Images/avtar.jpg'),
+    id: "6",
+    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    time: "9:01 am",
+    section: "Yesterday",
+    avatar: require("../Images/avtar.jpg"),
   },
 ];
 
 const groupBySection = (data) => {
   const sections = {};
-  data.forEach(item => {
+  data.forEach((item) => {
     if (!sections[item.section]) sections[item.section] = [];
     sections[item.section].push(item);
   });
@@ -97,29 +105,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   header: {
-    marginTop:height*0.05,
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginTop: height * 0.05,
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 24,
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 12,
   },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#888',
+    fontWeight: "600",
+    color: "#888",
     marginBottom: 12,
     marginTop: 16,
   },
   notificationItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     marginBottom: 20,
   },
   avatar: {
@@ -133,12 +141,12 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
     marginBottom: 4,
   },
   time: {
     fontSize: 12,
-    color: '#888',
+    color: "#888",
   },
 });
 

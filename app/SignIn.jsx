@@ -1,20 +1,28 @@
-import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { AntDesign, FontAwesome } from '@expo/vector-icons';
-import { useOAuth } from '@clerk/clerk-expo';
-import { useSignIn } from '@clerk/clerk-expo';
+import React, { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Alert,
+} from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import { useOAuth } from "@clerk/clerk-expo";
+import { useSignIn } from "@clerk/clerk-expo";
 
 const SignInScreen = () => {
   const navigation = useNavigation();
   const { signIn, isLoaded } = useSignIn();
-  
-  const [emailOrMobile, setEmailOrMobile] = useState('');
-  const [password, setPassword] = useState('');
+
+  const [emailOrMobile, setEmailOrMobile] = useState("");
+  const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
 
-const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
+  const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
 
   const handleOAuth = async (provider) => {
     try {
@@ -31,10 +39,10 @@ const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
         identifier: emailOrMobile,
         password: password,
       });
-      navigation.navigate('Home'); // Or your target screen after successful login
+      navigation.navigate("Home"); // Or your target screen after successful login
     } catch (err) {
-      console.error('Sign-in error:', err);
-      Alert.alert('Error', err.errors?.[0]?.message || 'Something went wrong');
+      console.error("Sign-in error:", err);
+      Alert.alert("Error", err.errors?.[0]?.message || "Something went wrong");
     }
   };
 
@@ -45,7 +53,12 @@ const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
 
       <View style={styles.inputWrapper}>
         <View style={styles.inputBox}>
-          <Ionicons name="person" size={20} color="#555" style={styles.leftIcon} />
+          <Ionicons
+            name="person"
+            size={20}
+            color="#555"
+            style={styles.leftIcon}
+          />
           <TextInput
             placeholder="Email or Mobile Number"
             placeholderTextColor="#999"
@@ -56,7 +69,12 @@ const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
         </View>
 
         <View style={styles.inputBox}>
-          <Ionicons name="lock-closed" size={20} color="#555" style={styles.leftIcon} />
+          <Ionicons
+            name="lock-closed"
+            size={20}
+            color="#555"
+            style={styles.leftIcon}
+          />
           <TextInput
             placeholder="Password"
             placeholderTextColor="#999"
@@ -65,9 +83,11 @@ const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
             value={password}
             onChangeText={setPassword}
           />
-          <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
+          <TouchableOpacity
+            onPress={() => setPasswordVisible(!passwordVisible)}
+          >
             <Ionicons
-              name={passwordVisible ? 'eye-off' : 'eye'}
+              name={passwordVisible ? "eye-off" : "eye"}
               size={20}
               color="#555"
               style={styles.eyeIcon}
@@ -76,7 +96,10 @@ const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
         </View>
       </View>
 
-      <TouchableOpacity style={styles.forgotPassword} onPress={() => navigation.navigate('ForgotPasswordScreen')}>
+      <TouchableOpacity
+        style={styles.forgotPassword}
+        onPress={() => navigation.navigate("ForgotPasswordScreen")}
+      >
         <Text style={styles.forgotText}>Forgot Password?</Text>
       </TouchableOpacity>
 
@@ -87,14 +110,29 @@ const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
       <Text style={styles.orText}>- OR Continue with -</Text>
 
       <View style={styles.socials}>
-        <TouchableOpacity onPress={() => handleOAuth('google')}><Image source={require('../Images/google.png')} style={styles.socialIcon} /></TouchableOpacity>
-        <TouchableOpacity onPress={() => handleOAuth('apple')}><Image source={require('../Images/apple.png')} style={styles.socialIcon} /></TouchableOpacity>
-        <TouchableOpacity onPress={() => handleOAuth('facebook')}><Image source={require('../Images/f.png')} style={styles.socialIcon} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => handleOAuth("google")}>
+          <Image
+            source={require("../Images/google.png")}
+            style={styles.socialIcon}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleOAuth("apple")}>
+          <Image
+            source={require("../Images/apple.png")}
+            style={styles.socialIcon}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleOAuth("facebook")}>
+          <Image
+            source={require("../Images/f.png")}
+            style={styles.socialIcon}
+          />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.signupContainer}>
-        <Text style={{ color: '#555' }}>Create An Account </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+        <Text style={{ color: "#555" }}>Create An Account </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
           <Text style={styles.signupText}>Sign Up</Text>
         </TouchableOpacity>
       </View>
@@ -109,23 +147,23 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 60,
     paddingHorizontal: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 30,
-    fontWeight: '700',
-    color: '#000',
+    fontWeight: "700",
+    color: "#000",
   },
   inputWrapper: {
     marginTop: 30,
   },
   inputBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 10,
-    backgroundColor: '#fdfdfd',
+    backgroundColor: "#fdfdfd",
     paddingHorizontal: 10,
     paddingVertical: 12,
     marginBottom: 16,
@@ -136,47 +174,47 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     fontSize: 16,
-    color: '#000',
+    color: "#000",
   },
   eyeIcon: {
     marginLeft: 8,
   },
   forgotPassword: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
     marginBottom: 30,
   },
   forgotText: {
-    color: '#007AFF',
+    color: "#007AFF",
     fontSize: 14,
   },
   loginButton: {
-    backgroundColor: '#2D82DB',
+    backgroundColor: "#2D82DB",
     paddingVertical: 14,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   loginText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   orText: {
-    textAlign: 'center',
-    color: '#888',
+    textAlign: "center",
+    color: "#888",
     marginVertical: 20,
   },
   socials: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    flexDirection: "row",
+    justifyContent: "space-evenly",
     marginBottom: 16,
   },
   signupContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
   },
   signupText: {
-    color: '#007AFF',
-    fontWeight: '500',
+    color: "#007AFF",
+    fontWeight: "500",
   },
 });

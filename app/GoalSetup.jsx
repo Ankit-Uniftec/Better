@@ -1,26 +1,35 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet,Dimensions } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import { useNavigation } from '@react-navigation/native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import { useNavigation } from "@react-navigation/native";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 const GoalSetup = () => {
-  const [frequency, setFrequency] = useState('Daily');
+  const [frequency, setFrequency] = useState("Daily");
   const [count, setCount] = useState(5);
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState("");
 
-  const frequencies = ['Daily', 'Weekly', 'Monthly'];
+  const frequencies = ["Daily", "Weekly", "Monthly"];
 
   const handleCountChange = (type) => {
-    if (type === 'decrement' && count > 0) setCount(count - 1);
-    if (type === 'increment') setCount(count + 1);
+    if (type === "decrement" && count > 0) setCount(count - 1);
+    if (type === "increment") setCount(count + 1);
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Set your goals</Text>
-      <Text style={styles.subtitle}>Create your daily, weekly, monthly goals</Text>
+      <Text style={styles.subtitle}>
+        Create your daily, weekly, monthly goals
+      </Text>
 
       <Text style={styles.label}>Goal Frequency</Text>
       <View style={styles.frequencyContainer}>
@@ -30,13 +39,13 @@ const GoalSetup = () => {
             onPress={() => setFrequency(item)}
             style={[
               styles.freqButton,
-              frequency === item && styles.freqButtonActive
+              frequency === item && styles.freqButtonActive,
             ]}
           >
             <Text
               style={[
                 styles.freqButtonText,
-                frequency === item && styles.freqButtonTextActive
+                frequency === item && styles.freqButtonTextActive,
               ]}
             >
               {item}
@@ -46,20 +55,28 @@ const GoalSetup = () => {
       </View>
 
       <Text style={styles.label}>
-        How many summaries do you want to read <Text style={styles.linkText}>{frequency.toLowerCase()}</Text>?
+        How many summaries do you want to read{" "}
+        <Text style={styles.linkText}>{frequency.toLowerCase()}</Text>?
       </Text>
       <View style={styles.counterContainer}>
-        <TouchableOpacity style={styles.counterButton} onPress={() => handleCountChange('decrement')}>
+        <TouchableOpacity
+          style={styles.counterButton}
+          onPress={() => handleCountChange("decrement")}
+        >
           <Text style={styles.counterText}>-</Text>
         </TouchableOpacity>
         <Text style={styles.countValue}>{count}</Text>
-        <TouchableOpacity style={styles.counterButton} onPress={() => handleCountChange('increment')}>
+        <TouchableOpacity
+          style={styles.counterButton}
+          onPress={() => handleCountChange("increment")}
+        >
           <Text style={styles.counterText}>+</Text>
         </TouchableOpacity>
       </View>
 
       <Text style={styles.label}>
-        Select a specific category for this goal <Text style={styles.optionalText}>(Optional)</Text>
+        Select a specific category for this goal{" "}
+        <Text style={styles.optionalText}>(Optional)</Text>
       </Text>
       <View style={styles.dropdownContainer}>
         <Picker
@@ -80,10 +97,8 @@ const GoalSetup = () => {
       <TouchableOpacity style={styles.continueButton}>
         <Text style={styles.continueButtonText}>Continue</Text>
       </TouchableOpacity>
-      <BottomNavigation/>
+      <BottomNavigation />
     </View>
-    
-    
   );
 };
 const BottomNavigation = () => {
@@ -91,19 +106,19 @@ const BottomNavigation = () => {
 
   return (
     <View style={styles.bottomNav}>
-      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+      <TouchableOpacity onPress={() => navigation.navigate("Home")}>
         <Ionicons name="home-outline" size={24} color="#007BFF" />
         <Text style={styles.navLabel}>Home</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Library')}>
+      <TouchableOpacity onPress={() => navigation.navigate("Library")}>
         <Ionicons name="library-outline" size={24} color="#999" />
         <Text style={styles.navLabel}>Library</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Summarize')}>
+      <TouchableOpacity onPress={() => navigation.navigate("Summarize")}>
         <Ionicons name="document-text-outline" size={24} color="#999" />
         <Text style={styles.navLabel}>Summarize</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+      <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
         <Ionicons name="person-outline" size={24} color="#999" />
         <Text style={styles.navLabel}>Profile</Text>
       </TouchableOpacity>
@@ -114,145 +129,140 @@ const styles = StyleSheet.create({
   container: {
     padding: 24,
     paddingBottom: 80,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     flex: 1,
-    justifyContent: 'flex-start'
+    justifyContent: "flex-start",
   },
   title: {
     fontSize: 24,
-    fontWeight: '600',
-    textAlign: 'center',
+    fontWeight: "600",
+    textAlign: "center",
     marginVertical: 12,
   },
   subtitle: {
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 24,
-    color: '#555',
+    color: "#555",
   },
   label: {
     fontSize: 16,
     marginTop: 20,
     marginBottom: 8,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   frequencyContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#111',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: "#111",
     borderRadius: 16,
     padding: 4,
   },
   freqButton: {
     flex: 1,
     paddingVertical: 10,
-    
+
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   freqButtonActive: {
-    backgroundColor: '#2D82DB',
+    backgroundColor: "#2D82DB",
   },
   freqButtonText: {
-    color: '#fff',
-    fontWeight: '500',
+    color: "#fff",
+    fontWeight: "500",
   },
   freqButtonTextActive: {
-    color: '#fff',
+    color: "#fff",
   },
   linkText: {
-    color: '#3498db',
-    fontWeight: '500',
+    color: "#3498db",
+    fontWeight: "500",
   },
   optionalText: {
-    color: '#888',
-    fontStyle: 'italic',
+    color: "#888",
+    fontStyle: "italic",
   },
   counterContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   counterButton: {
-    backgroundColor: '#EFEFEF',
+    backgroundColor: "#EFEFEF",
     borderRadius: 10,
     height: 37,
     width: 73,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     margin: 4,
   },
   counterText: {
     fontSize: 14,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     lineHeight: 37,
   },
   countValue: {
     width: 170,
     height: 37,
     borderRadius: 10,
-    textAlign: 'center',
-    backgroundColor: '#EFEFEF',
+    textAlign: "center",
+    backgroundColor: "#EFEFEF",
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     lineHeight: 37,
   },
   dropdownContainer: {
     borderWidth: 1,
-    borderColor: '#EFEFEF',
+    borderColor: "#EFEFEF",
     borderRadius: 12,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginVertical: 12,
   },
   addGoalButton: {
-    backgroundColor: '#000',
+    backgroundColor: "#000",
     paddingVertical: 14,
     borderRadius: 1,
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 12,
-    
-    borderRadius:16
+
+    borderRadius: 16,
   },
   addGoalButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 14,
-    
   },
   continueButton: {
-    backgroundColor: '#2D82DB',
+    backgroundColor: "#2D82DB",
     paddingVertical: 16,
     borderRadius: 16,
-    height:55,
-    alignItems: 'center',
-    marginTop: 'auto',
+    height: 55,
+    alignItems: "center",
+    marginTop: "auto",
   },
   continueButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
-  
+
   bottomNav: {
-    marginTop:height*0.06,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    marginTop: height * 0.06,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
     paddingVertical: 10,
-    backgroundColor: '#fff',
-    
-    
-    
+    backgroundColor: "#fff",
   },
   navLabel: {
     fontSize: 10,
-    textAlign: 'center',
-    color: '#999',
+    textAlign: "center",
+    color: "#999",
     marginTop: 2,
   },
-
 });
 
 export default GoalSetup;

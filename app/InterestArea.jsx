@@ -1,43 +1,66 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { Ionicons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
-
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
+import { Ionicons, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 const interestData = [
   [
-    { label: 'Emotional', icon: <Ionicons name="flower-outline" size={20} /> },
-    { label: 'Intellectual', icon: <MaterialIcons name="psychology" size={20} /> },
+    { label: "Emotional", icon: <Ionicons name="flower-outline" size={20} /> },
+    {
+      label: "Intellectual",
+      icon: <MaterialIcons name="psychology" size={20} />,
+    },
+  ],
+  [{ label: "Health", icon: <FontAwesome5 name="heartbeat" size={20} /> }],
+  [
+    {
+      label: "Spiritual",
+      icon: <MaterialIcons name="self-improvement" size={20} />,
+    },
+    { label: "Career", icon: <Ionicons name="briefcase-outline" size={20} /> },
   ],
   [
-    { label: 'Health', icon: <FontAwesome5 name="heartbeat" size={20} /> },
+    {
+      label: "Lifestyle & Wellness",
+      icon: <Ionicons name="fitness-outline" size={20} />,
+    },
   ],
   [
-    { label: 'Spiritual', icon: <MaterialIcons name="self-improvement" size={20} /> },
-    { label: 'Career', icon: <Ionicons name="briefcase-outline" size={20} /> },
+    {
+      label: "Financial",
+      icon: <FontAwesome5 name="hand-holding-usd" size={20} />,
+    },
+    { label: "Social", icon: <Ionicons name="people-outline" size={20} /> },
   ],
   [
-    { label: 'Lifestyle & Wellness', icon: <Ionicons name="fitness-outline" size={20} /> },
-  ],
-  [
-    { label: 'Financial', icon: <FontAwesome5 name="hand-holding-usd" size={20} /> },
-    { label: 'Social', icon: <Ionicons name="people-outline" size={20} /> },
-  ],
-  [
-    { label: 'Entrepreneurship', icon: <Ionicons name="business-outline" size={20} /> },
+    {
+      label: "Entrepreneurship",
+      icon: <Ionicons name="business-outline" size={20} />,
+    },
   ],
 ];
 
-const InterestArea = ({ navigation }) => {
+const InterestArea = () => {
+  const navigation = useNavigation();
+
   const [selected, setSelected] = useState([]);
 
   const toggleSelection = (label) => {
     setSelected((prev) =>
-      prev.includes(label) ? prev.filter((item) => item !== label) : [...prev, label]
+      prev.includes(label)
+        ? prev.filter((item) => item !== label)
+        : [...prev, label]
     );
   };
 
   const handleContinue = () => {
-    console.log('Selected Interests:', selected);
-    navigation.navigate('MainPage'); // or your destination
+    console.log("Selected Interests:", selected);
+    navigation.navigate("MainPage");
   };
 
   return (
@@ -93,38 +116,38 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 60,
     paddingHorizontal: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
-    fontWeight: '600',
-    textAlign: 'center',
+    fontWeight: "600",
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 14,
-    color: '#888',
-    textAlign: 'center',
+    color: "#888",
+    textAlign: "center",
     marginVertical: 10,
   },
   scrollContainer: {
     paddingBottom: 0,
-    marginTop:10
+    marginTop: 10,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginVertical: 10,
   },
   fullWidthRow: {
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   halfRow: {
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderColor: '#ccc',
+    flexDirection: "row",
+    alignItems: "center",
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 30,
     paddingVertical: 12,
@@ -132,38 +155,38 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   halfButton: {
-    width: '47%',
+    width: "47%",
   },
   fullButton: {
-    width: '100%',
+    width: "100%",
   },
   selectedButton: {
-    backgroundColor: '#e0f0ff',
-    borderColor: '#1e90ff',
+    backgroundColor: "#e0f0ff",
+    borderColor: "#1e90ff",
   },
   iconWrapper: {
     marginRight: 8,
   },
   buttonText: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
   },
   selectedText: {
-    color: '#1e90ff',
-    fontWeight: '600',
+    color: "#1e90ff",
+    fontWeight: "600",
   },
   continueButton: {
-    backgroundColor: '#2D82DB',
-    width:340,
+    backgroundColor: "#2D82DB",
+    width: 340,
     borderRadius: 10,
     paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 'auto',
+    alignItems: "center",
+    marginTop: "auto",
     marginBottom: 30,
   },
   continueText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

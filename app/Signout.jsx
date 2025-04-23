@@ -1,10 +1,10 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const SignOut = ({ navigation }) => {
   const handleSignOut = () => {
-    console.log('Logged out');
+    console.log("Logged out");
   };
 
   const handleCancel = () => {
@@ -20,8 +20,18 @@ const SignOut = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Settings</Text>
         <View style={styles.headerIcons}>
-          <TouchableOpacity><Ionicons name="notifications-outline" size={22} color="black" style={styles.icon} /></TouchableOpacity>
-         <TouchableOpacity> <Ionicons name="menu-outline" size={26} color="black" /></TouchableOpacity>
+          <TouchableOpacity>
+            <Ionicons
+              name="notifications-outline"
+              size={22}
+              color="black"
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            {" "}
+            <Ionicons name="menu-outline" size={26} color="black" />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -29,7 +39,7 @@ const SignOut = ({ navigation }) => {
       <View style={styles.profileContainer}>
         <View style={styles.avatarWrapper}>
           <Image
-            source={require('../Images/avtar.jpg')} 
+            source={require("../Images/avtar.jpg")}
             style={styles.avatar}
           />
           <TouchableOpacity style={styles.editIcon}>
@@ -42,10 +52,9 @@ const SignOut = ({ navigation }) => {
 
       {/* Logout Box */}
       <View style={styles.logoutCard}>
-      <Image
-            source={require('../Images/Signout.png')} // Make sure the image exists
-            
-          />
+        <Image
+          source={require("../Images/Signout.png")} // Make sure the image exists
+        />
         <Text style={styles.logoutTitle}>Sign out</Text>
         <Text style={styles.logoutText}>Are you sure you want to log out?</Text>
 
@@ -64,66 +73,66 @@ const SignOut = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     paddingTop: 48,
     paddingHorizontal: 16,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   headerIcons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
-    marginLeft: 'auto',
+    marginLeft: "auto",
   },
   profileContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 24,
   },
   avatarWrapper: {
-    position: 'relative',
+    position: "relative",
   },
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#ddd',
+    backgroundColor: "#ddd",
   },
   editIcon: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     right: 0,
-    backgroundColor: '#2D82DB',
+    backgroundColor: "#2D82DB",
     padding: 6,
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   name: {
     marginTop: 12,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   username: {
-    color: '#888',
+    color: "#888",
     fontSize: 14,
   },
   logoutCard: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     marginTop: 24,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     paddingTop: 48,
     paddingHorizontal: 24,
-    alignItems: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: -2 },
     shadowRadius: 10,
@@ -131,40 +140,40 @@ const styles = StyleSheet.create({
   },
   logoutTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 8,
   },
   logoutText: {
     fontSize: 14,
-    color: '#888',
+    color: "#888",
     marginBottom: 32,
-    textAlign: 'center',
+    textAlign: "center",
   },
   noButton: {
-    backgroundColor: '#2D82DB',
-    width: '100%',
+    backgroundColor: "#2D82DB",
+    width: "100%",
     paddingVertical: 14,
     borderRadius: 14,
     marginBottom: 16,
-    alignItems: 'center',
-    height:47
+    alignItems: "center",
+    height: 47,
   },
   noButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 16,
   },
   yesButton: {
-    backgroundColor: '#000',
-    width: '100%',
+    backgroundColor: "#000",
+    width: "100%",
     paddingVertical: 14,
     borderRadius: 14,
-    alignItems: 'center',
-    height:47
+    alignItems: "center",
+    height: 47,
   },
   yesButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 16,
   },
 });

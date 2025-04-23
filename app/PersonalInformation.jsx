@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,29 +7,31 @@ import {
   StyleSheet,
   Dimensions,
   Image,
-} from 'react-native';
-import { useUser } from '@clerk/clerk-expo';
-import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useUser } from "@clerk/clerk-expo";
+import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 const PersonalInformation = () => {
+  const navigation = useNavigation();
   const { user, isLoaded } = useUser();
   const router = useRouter();
 
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [gender, setGender] = useState('');
-  const [birthday, setBirthday] = useState('');
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [gender, setGender] = useState("");
+  const [birthday, setBirthday] = useState("");
 
   useEffect(() => {
     if (isLoaded && user) {
       const meta = user.publicMetadata || {};
-      setFirstName(user.firstName || '');
-      setLastName(user.lastName || '');
-      setGender(meta.gender || '');
-      setBirthday(meta.birthday || '');
+      setFirstName(user.firstName || "");
+      setLastName(user.lastName || "");
+      setGender(meta.gender || "");
+      setBirthday(meta.birthday || "");
     }
   }, [isLoaded]);
 
@@ -45,12 +47,12 @@ const PersonalInformation = () => {
       });
 
       // Save a flag to AsyncStorage to indicate profile completion
-      await AsyncStorage.setItem('profileComplete', 'true');
+      await AsyncStorage.setItem("profileComplete", "true");
 
       // Navigate to MainPage inside components
-      router.replace('/components/MainPage');
+      router.replace("/components/MainPage");
     } catch (err) {
-      console.log('Error updating profile:', err);
+      console.log("Error updating profile:", err);
     }
   };
 
@@ -62,7 +64,8 @@ const PersonalInformation = () => {
 
       <Text style={styles.title}>Tell us more about yourself</Text>
       <Text style={styles.subtitle}>
-        Please enter your details. This information will be used to personalize your account.
+        Please enter your details. This information will be used to personalize
+        your account.
       </Text>
 
       <Text style={styles.label}>First name</Text>
@@ -94,18 +97,18 @@ const PersonalInformation = () => {
         <TouchableOpacity
           style={[
             styles.genderOption,
-            gender === 'male' && styles.genderSelected,
+            gender === "male" && styles.genderSelected,
           ]}
-          onPress={() => setGender('male')}
+          onPress={() => setGender("male")}
         >
           <Image
-            source={require('../Images/male.png')}
+            source={require("../Images/male.png")}
             style={styles.genderIcon}
           />
           <Text
             style={[
               styles.genderText,
-              gender === 'male' && styles.genderTextSelected,
+              gender === "male" && styles.genderTextSelected,
             ]}
           >
             Male
@@ -115,18 +118,18 @@ const PersonalInformation = () => {
         <TouchableOpacity
           style={[
             styles.genderOption,
-            gender === 'female' && styles.genderSelected,
+            gender === "female" && styles.genderSelected,
           ]}
-          onPress={() => setGender('female')}
+          onPress={() => setGender("female")}
         >
           <Image
-            source={require('../Images/female.png')}
+            source={require("../Images/female.png")}
             style={styles.genderIcon}
           />
           <Text
             style={[
               styles.genderText,
-              gender === 'female' && styles.genderTextSelected,
+              gender === "female" && styles.genderTextSelected,
             ]}
           >
             Female
@@ -134,7 +137,12 @@ const PersonalInformation = () => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.continueButton} onPress={handleSubmit}>
+      <TouchableOpacity
+        style={styles.continueButton}
+        onPress={() => {
+          navigation.navigate("InterestArea");
+        }}
+      >
         <Text style={styles.continueText}>Continue</Text>
       </TouchableOpacity>
     </View>
@@ -147,77 +155,77 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   backButton: {
     marginBottom: 20,
   },
   backArrow: {
     fontSize: 24,
-    color: '#377DFF',
+    color: "#377DFF",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginBottom: 24,
   },
   label: {
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 6,
     marginTop: 16,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
   genderContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 12,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   genderOption: {
     width: (width - 64) / 2,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 12,
     paddingVertical: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   genderSelected: {
-    borderColor: '#377DFF',
+    borderColor: "#377DFF",
   },
   genderIcon: {
     width: 40,
     height: 40,
     marginBottom: 8,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   genderText: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
   genderTextSelected: {
-    color: '#377DFF',
-    fontWeight: '600',
+    color: "#377DFF",
+    fontWeight: "600",
   },
   continueButton: {
-    backgroundColor: '#2D82DB',
+    backgroundColor: "#2D82DB",
     borderRadius: 12,
     marginTop: 32,
     paddingVertical: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   continueText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
