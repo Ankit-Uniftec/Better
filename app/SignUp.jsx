@@ -26,9 +26,19 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
 
-  const handleOAuth = async (provider) => {
+  const google = useOAuth({ strategy: "oauth_google" });
+  const apple = useOAuth({ strategy: "oauth_apple" });
+  const facebook = useOAuth({ strategy: "oauth_facebook" });
+
+
+
+
+  const handleOAuth = async (strategy) => {
     try {
-      await startOAuthFlow({ strategy: `oauth_${provider}` });
+      if (strategy === "google") await google.startOAuthFlow();
+      else if (strategy === "apple") await apple.startOAuthFlow();
+      else if (strategy === "facebook") await facebook.startOAuthFlow();
+      // await startOAuthFlow({ strategy: `oauth_${provider}` });
     } catch (err) {
       console.error(`OAuth error:`, err);
     }

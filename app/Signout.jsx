@@ -1,21 +1,28 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { useUser, useAuth } from "@clerk/clerk-expo"; // ✅ Added useAuth
 
-const SignOut = ({ navigation }) => {
-  const handleSignOut = () => {
-    console.log("Logged out");
-  };
+const SignOut = () => {
+  const navigation = useNavigation();
+  const { user } = useUser();
+  const { signOut } = useAuth(); // ✅ Get signOut method
 
-  const handleCancel = () => {
-    navigation.goBack();
+  const handleSignOut = async () => {
+    try {
+      await signOut(); // ✅ Correct sign-out call
+      navigation.navigate("SignIn"); // ✅ Navigate after signing out
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (
     <View style={styles.container}>
       {/* Top Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleCancel}>
+        <TouchableOpacity>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Settings</Text>
@@ -29,7 +36,6 @@ const SignOut = ({ navigation }) => {
             />
           </TouchableOpacity>
           <TouchableOpacity>
-            {" "}
             <Ionicons name="menu-outline" size={26} color="black" />
           </TouchableOpacity>
         </View>
@@ -53,12 +59,12 @@ const SignOut = ({ navigation }) => {
       {/* Logout Box */}
       <View style={styles.logoutCard}>
         <Image
-          source={require("../Images/Signout.png")} // Make sure the image exists
+          source={require("../Images/Signout.png")}
         />
         <Text style={styles.logoutTitle}>Sign out</Text>
         <Text style={styles.logoutText}>Are you sure you want to log out?</Text>
 
-        <TouchableOpacity style={styles.noButton} onPress={handleCancel}>
+        <TouchableOpacity style={styles.noButton} onPress={() => navigation.navigate("Setting")}>
           <Text style={styles.noButtonText}>No</Text>
         </TouchableOpacity>
 

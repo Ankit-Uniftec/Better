@@ -7,17 +7,16 @@ import {
   Image,
   Dimensions,
 } from "react-native";
-import { useOAuth, useUser } from "@clerk/clerk-expo";
-import { useRouter } from "expo-router";
+import { useOAuth, useUser, useAuth } from "@clerk/clerk-expo";
 import { useNavigation } from "@react-navigation/native";
-import PersonalInformation from "./PersonalInformation";
 
 const { width, height } = Dimensions.get("window");
 
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const router = useRouter();
-  const { isSignedIn, user } = useUser(); // Watch auth state
+  const { isSignedIn, user } = useUser();
+  const { isLoaded } = useAuth(); 
+
   const google = useOAuth({ strategy: "oauth_google" });
   const apple = useOAuth({ strategy: "oauth_apple" });
   const facebook = useOAuth({ strategy: "oauth_facebook" });
@@ -33,13 +32,14 @@ const LoginScreen = () => {
   };
 
   useEffect(() => {
+    if (!isLoaded) return;
+
     if (isSignedIn && user) {
       const { publicMetadata } = user;
       const hasInfo = publicMetadata?.birthday && publicMetadata?.gender;
-      // router.replace(hasInfo ? '/(tabs)/' : '/PersonalInformation');
       navigation.replace("PersonalInformation");
     }
-  }, [isSignedIn, user]);
+  }, [isLoaded, isSignedIn, user]);
 
   return (
     <View style={styles.container}>
@@ -79,7 +79,7 @@ const LoginScreen = () => {
         <Text style={styles.buttonText}>Continue with Facebook</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/SignUp")}>
+      <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
         <Text style={styles.emailSignup}>Sign Up with email</Text>
       </TouchableOpacity>
 
@@ -93,6 +93,7 @@ const LoginScreen = () => {
 };
 
 export default LoginScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

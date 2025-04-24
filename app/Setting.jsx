@@ -11,16 +11,17 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
-const Settings = ({ navigation }) => {
+const Settings = () => {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.navigate('MainPage')}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Settings</Text>
         <View style={styles.headerIcons}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={()=>navigation.navigate('Notification')}>
             <Ionicons
               name="notifications-outline"
               size={22}
@@ -29,7 +30,7 @@ const Settings = ({ navigation }) => {
             />
           </TouchableOpacity>
           <TouchableOpacity>
-            {" "}
+            
             <Ionicons name="menu-outline" size={26} color="black" />
           </TouchableOpacity>
         </View>
@@ -68,10 +69,10 @@ const Settings = ({ navigation }) => {
         <Text style={styles.supportButtonText}>Contact Support</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.logoutButton}>
+      <TouchableOpacity style={styles.logoutButton} onPress={()=>navigation.navigate('Signout')} >
         <Text style={styles.logoutButtonText}>Log Out</Text>
       </TouchableOpacity>
-      <BottomNavigation />
+      {/* <BottomNavigation /> */}
     </View>
   );
 };

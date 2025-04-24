@@ -13,7 +13,11 @@ import LibraryScreen from '../LibraryScreen';
 import CreateListScreen from '../CreateListScreen'; 
 import MainPage from '../MainPage'
 import InterestArea from '../InterestArea'
-
+import LinkSummarizer from '../LinkSummarizer'
+import Notification from '../Notification';
+import Profile from '../Profile';
+import Setting from '../Setting';
+import Signout from '../Signout';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,7 +35,11 @@ const Index = () => {
       <Stack.Screen name="CreateListScreen" component={CreateListScreen} />
       <Stack.Screen name="MainPage" component={MainPage} />
       <Stack.Screen name="InterestArea" component={InterestArea} />
-
+      <Stack.Screen name="LinkSummarizer" component={LinkSummarizer} />
+      <Stack.Screen name="Notification" component={Notification}/>
+      <Stack.Screen name="Profile" component={Profile}/>
+      <Stack.Screen name='Setting' component={Setting}/>
+      <Stack.Screen name='Signout' component={Signout}/>
     </Stack.Navigator>
   );
 };

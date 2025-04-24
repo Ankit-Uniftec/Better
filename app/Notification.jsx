@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
+import { useNavigation } from "expo-router";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 const { width, height } = Dimensions.get("window");
@@ -65,14 +66,15 @@ const groupBySection = (data) => {
   return Object.entries(sections).map(([title, data]) => ({ title, data }));
 };
 
-const Notification = ({ navigation }) => {
+const Notification = () => {
+  const navigation = useNavigation();
   const sections = groupBySection(notificationsData);
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.navigate('MainPage')}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Notifications</Text>

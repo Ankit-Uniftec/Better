@@ -64,7 +64,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       if (!isProfileComplete) {
         router.replace('/PersonalInformation');
       } else {
-        router.replace('../components/MainPage');
+        router.replace('/MainPage');
       }
     }
   }, [authLoaded, userLoaded, isSignedIn]);

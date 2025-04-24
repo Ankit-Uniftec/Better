@@ -92,10 +92,10 @@ const MainPage = () => {
             style={{ marginLeft: 8 }}
           />
           <TextInput placeholder="Search" style={styles.searchInput} />
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
             <Feather name="bell" size={20} color="#000" style={styles.icon} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={()=>navigation.navigate('Setting')}>
             <Feather name="menu" size={20} color="#000" style={styles.icon} />
           </TouchableOpacity>
         </View>
@@ -174,14 +174,14 @@ const BottomNavigation = () => {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Summarize")}>
+      <TouchableOpacity onPress={() => navigation.navigate("LinkSummarizer")}>
         <Ionicons
           name="document-text-outline"
           size={24}
-          color={getIconColor("Summarize")}
+          color={getIconColor("LinkSummarizer")}
         />
-        <Text style={[styles.navLabel, { color: getIconColor("Summarize") }]}>
-          Summarize
+        <Text style={[styles.navLabel, { color: getIconColor("LinkSummarizer") }]}>
+        Summarizer
         </Text>
       </TouchableOpacity>
 
