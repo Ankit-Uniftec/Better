@@ -1,16 +1,25 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
 const CreateListScreen = () => {
-  const [listName, setListName] = useState('');
+  const [listName, setListName] = useState("");
   const [isPublic, setIsPublic] = useState(true);
   const navigation = useNavigation();
 
   const handleCreate = async () => {
     if (!listName.trim()) {
-      Alert.alert('Please enter a list name');
+      Alert.alert("Please enter a list name");
       return;
     }
 
@@ -21,21 +30,24 @@ const CreateListScreen = () => {
     };
 
     try {
-      const storedLists = await AsyncStorage.getItem('summaryLists');
+      const storedLists = await AsyncStorage.getItem("summaryLists");
       const existingLists = storedLists ? JSON.parse(storedLists) : [];
       const updatedLists = [...existingLists, newList];
-      await AsyncStorage.setItem('summaryLists', JSON.stringify(updatedLists));
+      await AsyncStorage.setItem("summaryLists", JSON.stringify(updatedLists));
 
-      setListName('');
+      setListName("");
       setIsPublic(true);
       navigation.goBack();
     } catch (error) {
-      console.error('Error saving list:', error);
+      console.error("Error saving list:", error);
     }
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
       <Text style={styles.title}>Name your summary list</Text>
       <TextInput
         style={styles.input}
@@ -46,18 +58,24 @@ const CreateListScreen = () => {
 
       <Text style={styles.label}>List Type</Text>
       <View style={styles.toggleContainer}>
-        <TouchableOpacity style={[styles.toggleButton, isPublic && styles.selected]} onPress={() => setIsPublic(true)}>
+        <TouchableOpacity
+          style={[styles.toggleButton, isPublic && styles.selected]}
+          onPress={() => setIsPublic(true)}
+        >
           <Text style={styles.toggleText}>Public List</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.toggleButton, !isPublic && styles.selected]} onPress={() => setIsPublic(false)}>
+        <TouchableOpacity
+          style={[styles.toggleButton, !isPublic && styles.selected]}
+          onPress={() => setIsPublic(false)}
+        >
           <Text style={styles.toggleText}>Private List</Text>
         </TouchableOpacity>
       </View>
 
       <Text style={styles.info}>
         {isPublic
-          ? 'Public lists will be visible to all users on the platform.'
-          : 'Private lists will remain visible only to you and will not be shared with others.'}
+          ? "Public lists will be visible to all users on the platform."
+          : "Private lists will remain visible only to you and will not be shared with others."}
       </Text>
 
       <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
@@ -68,19 +86,19 @@ const CreateListScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  title: { fontSize: 18, fontWeight: 'bold', marginBottom: 12 },
+  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  title: { fontSize: 18, fontWeight: "bold", marginBottom: 12 },
   input: {
     height: 50,
     borderRadius: 10,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
     paddingHorizontal: 12,
     marginBottom: 20,
   },
-  label: { fontWeight: '600', fontSize: 14, marginBottom: 10 },
+  label: { fontWeight: "600", fontSize: 14, marginBottom: 10 },
   toggleContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#222',
+    flexDirection: "row",
+    backgroundColor: "#222",
     borderRadius: 12,
     padding: 4,
     marginBottom: 10,
@@ -88,35 +106,34 @@ const styles = StyleSheet.create({
   toggleButton: {
     flex: 1,
     paddingVertical: 10,
-    backgroundColor: '#222',
+    backgroundColor: "#222",
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   selected: {
-    backgroundColor: '#1E90FF',
+    backgroundColor: "#1E90FF",
   },
   toggleText: {
-    color: '#fff',
-    fontWeight: '500',
+    color: "#fff",
+    fontWeight: "500",
   },
   info: {
-    color: '#666',
+    color: "#666",
     fontSize: 12,
     marginBottom: 30,
     marginTop: 10,
   },
   createButton: {
-    backgroundColor: '#1E90FF',
+    backgroundColor: "#1E90FF",
     padding: 14,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   createButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 16,
   },
 });
 
 export default CreateListScreen;
-

@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 const { width, height } = Dimensions.get("window");
 
 const Summarize = () => {
+  const navigation = useNavigation();
   const { videoId } = useLocalSearchParams();
   const [summary, setSummary] = useState("");
   const [takeaways, setTakeaways] = useState("");
@@ -53,12 +54,12 @@ const Summarize = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('MainPage')}>
+        <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Summarize</Text>
         <View style={styles.headerIcons}>
-          <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
+          <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
             <Ionicons
               name="notifications-outline"
               size={22}
@@ -67,7 +68,6 @@ const Summarize = () => {
             />
           </TouchableOpacity>
           <TouchableOpacity>
-            {" "}
             <Ionicons name="menu-outline" size={26} color="black" />
           </TouchableOpacity>
         </View>

@@ -16,12 +16,12 @@ const Settings = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('MainPage')}>
+        <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Settings</Text>
         <View style={styles.headerIcons}>
-          <TouchableOpacity onPress={()=>navigation.navigate('Notification')}>
+          <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
             <Ionicons
               name="notifications-outline"
               size={22}
@@ -30,7 +30,6 @@ const Settings = () => {
             />
           </TouchableOpacity>
           <TouchableOpacity>
-            
             <Ionicons name="menu-outline" size={26} color="black" />
           </TouchableOpacity>
         </View>
@@ -65,11 +64,19 @@ const Settings = () => {
         ))}
       </View>
 
-      <TouchableOpacity style={styles.supportButton}>
+      <TouchableOpacity
+        style={styles.supportButton}
+        onPress={() => {
+          navigation.navigate("UploadScreen");
+        }}
+      >
         <Text style={styles.supportButtonText}>Contact Support</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={()=>navigation.navigate('Signout')} >
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={() => navigation.navigate("Signout")}
+      >
         <Text style={styles.logoutButtonText}>Log Out</Text>
       </TouchableOpacity>
       {/* <BottomNavigation /> */}

@@ -12,38 +12,70 @@ import {
   Dimensions,
 } from "react-native";
 import { useNavigation } from "expo-router";
-import axios from "axios";
 import { Ionicons, Feather } from "@expo/vector-icons";
+import { db } from "./firebase";
+import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
 
 const { width, height } = Dimensions.get("window");
 
-const API_KEY = "AIzaSyA3pmJmKVoZavaCfbJ3gUM9XxEDyLbG5b0";
-const CHANNEL_ID = "UC_x5XG1OV2P6uZZ5FSM9Ttw"; // Replace with your desired channel ID
-
 const MainPage = () => {
-  const [videos, setVideos] = useState([]);
+  const [trending, setTrending] = useState([]);
+  const [popular, setPopular] = useState([]);
   const navigation = useNavigation();
 
   useEffect(() => {
-    const fetchVideos = async () => {
-      try {
-        const res = await axios.get(
-          `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet,id&order=date&maxResults=10`
-        );
-        setVideos(res.data.items);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+    const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const trendingVideos = [];
+      const popularVideos = [];
 
-    fetchVideos();
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const videoId = extractVideoId(data.videoUrl);
+        if (videoId && data.category) {
+          const video = {
+            id: doc.id,
+            videoId,
+            snippet: {
+              title: videoId,
+              thumbnails: {
+                medium: {
+                  url: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+                },
+                high: {
+                  url: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+                },
+              },
+            },
+          };
+
+          if (data.category.toLowerCase() === "trending") {
+            trendingVideos.push(video);
+          } else if (data.category.toLowerCase() === "popular") {
+            popularVideos.push(video);
+          }
+        }
+      });
+
+      setTrending(trendingVideos);
+      setPopular(popularVideos);
+    });
+
+    return () => unsubscribe();
   }, []);
+
+  const extractVideoId = (url) => {
+    const match = url.match(
+      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+    );
+    return match ? match[1] : null;
+  };
 
   const renderVideoCard = ({ item }) => (
     <TouchableOpacity
       style={styles.videoCard}
       onPress={() =>
-        navigation.navigate("Summarize", { videoId: item.id.videoId })
+        navigation.navigate("Summarize", { videoId: item.videoId })
       }
     >
       <Image
@@ -65,10 +97,10 @@ const MainPage = () => {
     >
       {videos.slice(0, 5).map((item) => (
         <TouchableOpacity
-          key={item.id.videoId}
+          key={item.videoId}
           style={styles.carouselSlide}
           onPress={() =>
-            navigation.navigate("Summarize", { videoId: item.id.videoId })
+            navigation.navigate("Summarize", { videoId: item.videoId })
           }
         >
           <Image
@@ -92,16 +124,16 @@ const MainPage = () => {
             style={{ marginLeft: 8 }}
           />
           <TextInput placeholder="Search" style={styles.searchInput} />
-          <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
+          <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
             <Feather name="bell" size={20} color="#000" style={styles.icon} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={()=>navigation.navigate('Setting')}>
+          <TouchableOpacity onPress={() => navigation.navigate("Setting")}>
             <Feather name="menu" size={20} color="#000" style={styles.icon} />
           </TouchableOpacity>
         </View>
 
         {/* Carousel */}
-        <Carousel videos={videos} />
+        <Carousel videos={trending} />
 
         {/* Trending Section */}
         <View style={styles.sectionHeader}>
@@ -111,9 +143,9 @@ const MainPage = () => {
           </TouchableOpacity>
         </View>
         <FlatList
-          data={videos.slice(5)}
+          data={trending}
           renderItem={renderVideoCard}
-          keyExtractor={(item) => item.id.videoId}
+          keyExtractor={(item) => item.videoId}
           horizontal
           showsHorizontalScrollIndicator={false}
         />
@@ -126,9 +158,9 @@ const MainPage = () => {
           </TouchableOpacity>
         </View>
         <FlatList
-          data={videos.slice(0, 5)}
+          data={popular}
           renderItem={renderVideoCard}
-          keyExtractor={(item) => item.id.videoId + "_pop"}
+          keyExtractor={(item) => item.videoId + "_pop"}
           horizontal
           showsHorizontalScrollIndicator={false}
         />
@@ -144,7 +176,7 @@ const BottomNavigation = () => {
   const navigation = useNavigation();
   const route = useRoute();
 
-  const getIconColor = (screenName: string) => {
+  const getIconColor = (screenName) => {
     return route.name === screenName ? "#007BFF" : "#999";
   };
 
@@ -180,8 +212,10 @@ const BottomNavigation = () => {
           size={24}
           color={getIconColor("LinkSummarizer")}
         />
-        <Text style={[styles.navLabel, { color: getIconColor("LinkSummarizer") }]}>
-        Summarizer
+        <Text
+          style={[styles.navLabel, { color: getIconColor("LinkSummarizer") }]}
+        >
+          Summarizer
         </Text>
       </TouchableOpacity>
 

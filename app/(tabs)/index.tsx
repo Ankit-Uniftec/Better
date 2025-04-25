@@ -18,6 +18,7 @@ import Notification from '../Notification';
 import Profile from '../Profile';
 import Setting from '../Setting';
 import Signout from '../Signout';
+import UploadScreen from '../UploadScreen'
 
 const Stack = createNativeStackNavigator();
 
@@ -40,6 +41,7 @@ const Index = () => {
       <Stack.Screen name="Profile" component={Profile}/>
       <Stack.Screen name='Setting' component={Setting}/>
       <Stack.Screen name='Signout' component={Signout}/>
+      <Stack.Screen name='UploadScreen' component={UploadScreen}/>
     </Stack.Navigator>
   );
 };
