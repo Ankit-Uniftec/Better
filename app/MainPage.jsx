@@ -15,6 +15,7 @@ import { useNavigation } from "expo-router";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { db } from "./firebase";
 import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
+import axios from "axios";
 
 const { width, height } = Dimensions.get("window");
 
@@ -23,21 +24,39 @@ const MainPage = () => {
   const [popular, setPopular] = useState([]);
   const navigation = useNavigation();
 
+  // Fetch video title using the YouTube API
+  const getVideoTitle = async (videoId) => {
+    const apiKey = "AIzaSyA3pmJmKVoZavaCfbJ3gUM9XxEDyLbG5b0"; // Replace with your YouTube API key
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`;
+
+    try {
+      const response = await axios.get(url);
+      if (response.data.items.length > 0) {
+        return response.data.items[0].snippet.title;
+      }
+    } catch (error) {
+      console.error("Error fetching video title:", error);
+    }
+    return videoId; // Fallback to videoId if title is not found
+  };
+
   useEffect(() => {
     const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const unsubscribe = onSnapshot(q, async (querySnapshot) => {
       const trendingVideos = [];
       const popularVideos = [];
 
-      querySnapshot.forEach((doc) => {
+      for (const doc of querySnapshot.docs) {
         const data = doc.data();
         const videoId = extractVideoId(data.videoUrl);
         if (videoId && data.category) {
+          const title = await getVideoTitle(videoId); // Fetch the title dynamically
+
           const video = {
             id: doc.id,
             videoId,
             snippet: {
-              title: videoId,
+              title: title || videoId, // Use videoId if title is not found
               thumbnails: {
                 medium: {
                   url: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
@@ -55,7 +74,7 @@ const MainPage = () => {
             popularVideos.push(video);
           }
         }
-      });
+      }
 
       setTrending(trendingVideos);
       setPopular(popularVideos);
@@ -81,6 +100,7 @@ const MainPage = () => {
       <Image
         source={{ uri: item.snippet.thumbnails.medium.url }}
         style={styles.thumbnail}
+        resizeMode="cover"
       />
       <Text style={styles.title} numberOfLines={2}>
         {item.snippet.title}
@@ -88,12 +108,12 @@ const MainPage = () => {
     </TouchableOpacity>
   );
 
-  const Carousel = ({ videos }) => (
+  const CarouselComponent = ({ videos }) => (
     <ScrollView
       horizontal
       pagingEnabled
       showsHorizontalScrollIndicator={false}
-      style={styles.carouselContainer}
+      style={styles.carouselWrapper}
     >
       {videos.slice(0, 5).map((item) => (
         <TouchableOpacity
@@ -106,6 +126,7 @@ const MainPage = () => {
           <Image
             source={{ uri: item.snippet.thumbnails.high.url }}
             style={styles.carouselImage}
+            resizeMode="cover"
           />
         </TouchableOpacity>
       ))}
@@ -115,7 +136,7 @@ const MainPage = () => {
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
-        {/* Top bar */}
+        {/* Top Bar */}
         <View style={styles.topBar}>
           <Ionicons
             name="search"
@@ -133,7 +154,7 @@ const MainPage = () => {
         </View>
 
         {/* Carousel */}
-        <Carousel videos={trending} />
+        <CarouselComponent videos={trending} />
 
         {/* Trending Section */}
         <View style={styles.sectionHeader}>
@@ -253,8 +274,9 @@ const styles = StyleSheet.create({
   icon: {
     marginHorizontal: 8,
   },
-  carouselContainer: {
-    height: height * 0.2,
+  carouselWrapper: {
+    height: height * 0.25,
+    marginBottom: 20,
   },
   carouselSlide: {
     width: width,
@@ -262,6 +284,7 @@ const styles = StyleSheet.create({
   carouselImage: {
     width: "100%",
     height: "100%",
+    borderRadius: 10,
   },
   sectionHeader: {
     flexDirection: "row",
