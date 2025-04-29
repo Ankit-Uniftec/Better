@@ -11,7 +11,7 @@ const SignOut = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut(); // ✅ Correct sign-out call
+      await signOut(); 
       navigation.navigate("SignIn"); // ✅ Navigate after signing out
     } catch (error) {
       console.error("Error signing out:", error);

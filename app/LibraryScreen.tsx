@@ -1,9 +1,12 @@
-import { useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import {
+  View, Text, TextInput, TouchableOpacity, ScrollView,
+  StyleSheet, Image
+} from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons, Feather } from '@expo/vector-icons';
+import { db } from "./firebase";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
 const LibraryScreen = () => {
   const navigation = useNavigation<any>();
@@ -13,16 +16,18 @@ const LibraryScreen = () => {
     const unsubscribe = navigation.addListener('focus', () => {
       loadLists();
     });
-
     return unsubscribe;
   }, [navigation]);
 
   const loadLists = async () => {
     try {
-      const storedLists = await AsyncStorage.getItem('summaryLists');
-      if (storedLists) {
-        setSummaryLists(JSON.parse(storedLists));
-      }
+      const q = query(collection(db, "summaryLists"), orderBy("createdAt", "desc"));
+      const snapshot = await getDocs(q);
+      const lists = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setSummaryLists(lists);
     } catch (error) {
       console.error('Failed to load lists:', error);
     }
@@ -51,16 +56,23 @@ const LibraryScreen = () => {
   };
 
   return (
-
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
         <View style={styles.topBar}>
-          <Ionicons name="search" size={20} color="#aaa" style={{ marginLeft: 8 }} />
-          <TextInput placeholder="Search" style={styles.searchInput} />
-          <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
+
+          <View style={styles.searchContainer}>
+            <Ionicons
+              name="search"
+              size={20}
+              color="#aaa"
+              style={{ marginLeft: 8 }}
+            />
+            <TextInput placeholder="Search" style={styles.searchInput} />
+          </View>
+          <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
             <Feather name="bell" size={20} color="#000" style={styles.icon} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={()=>navigation.navigate('Setting')}>
+          <TouchableOpacity onPress={() => navigation.navigate("Setting")}>
             <Feather name="menu" size={20} color="#000" style={styles.icon} />
           </TouchableOpacity>
         </View>
@@ -72,7 +84,6 @@ const LibraryScreen = () => {
               <Text style={styles.addLink}>+ Add List</Text>
             </TouchableOpacity>
           </View>
-
           {renderListRows()}
         </View>
 
@@ -86,37 +97,16 @@ const LibraryScreen = () => {
             <View style={styles.card}><Image style={styles.cardImage} /><Text>Title</Text></View>
           </View>
         </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Saved Summaries</Text>
-            <TouchableOpacity><Text style={styles.addLink}>See more</Text></TouchableOpacity>
-          </View>
-          <View style={styles.cardRow}>
-            <View style={styles.card}><Image style={styles.cardImage} /><Text>Title</Text></View>
-            <View style={styles.card}><Image style={styles.cardImage} /><Text>Title</Text></View>
-          </View>
-        </View>
       </ScrollView>
       <BottomNavigation />
     </View>
-
-
   );
-
 };
-
-
-
-
 
 const BottomNavigation = () => {
   const navigation = useNavigation<any>();
   const route = useRoute();
-
-  const getIconColor = (screenName: string) => {
-    return route.name === screenName ? '#007BFF' : '#999';
-  };
+  const getIconColor = (screenName) => route.name === screenName ? '#007BFF' : '#999';
 
   return (
     <View style={styles.bottomNav}>
@@ -144,27 +134,35 @@ const BottomNavigation = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 50, backgroundColor: '#fff', },
+  container: { flex: 1, paddingTop: 50, backgroundColor: '#fff' },
   topBar: {
-
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F1F1F1',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#FFF",
     marginHorizontal: 16,
     borderRadius: 10,
     paddingHorizontal: 8,
     marginBottom: 10,
+    height: 50,
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+
+    backgroundColor: "#F1F1F1",
+    borderRadius: 15,
+    paddingLeft: 10,
+    height: 40,
   },
   searchInput: {
     flex: 1,
-    padding: 10,
+    padding:10,
     fontSize: 16,
     color: '#000',
   },
-  icon: {
-    marginHorizontal: 8,
-  },
-
+  icon: { marginHorizontal: 8 },
   section: { marginBottom: 24 },
   sectionHeader: {
     marginHorizontal: 16,
@@ -203,9 +201,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
   },
-
   bottomNav: {
-    marginTop: 0,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',

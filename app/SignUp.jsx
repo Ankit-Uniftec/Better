@@ -12,6 +12,7 @@ import {
   Alert,
 } from "react-native";
 import { useSignUp } from "@clerk/clerk-expo";
+import CountryPicker from "react-native-country-picker-modal";
 
 const { width, height } = Dimensions.get("window");
 
@@ -24,21 +25,25 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [countryCode, setCountryCode] = useState("IN");
+  const [callingCode, setCallingCode] = useState("1");
 
   const google = useOAuth({ strategy: "oauth_google" });
   const apple = useOAuth({ strategy: "oauth_apple" });
   const facebook = useOAuth({ strategy: "oauth_facebook" });
 
-
-
+  const onSelect = (country) => {
+    setCountryCode(country.cca2);
+    setCallingCode(country.callingCode[0]);
+  };
 
   const handleOAuth = async (strategy) => {
     try {
       if (strategy === "google") await google.startOAuthFlow();
       else if (strategy === "apple") await apple.startOAuthFlow();
       else if (strategy === "facebook") await facebook.startOAuthFlow();
-      // await startOAuthFlow({ strategy: `oauth_${provider}` });
     } catch (err) {
       console.error(`OAuth error:`, err);
     }
@@ -55,7 +60,7 @@ const SignUp = () => {
       await signUp.create({
         emailAddress: email,
         password: password,
-        phoneNumber: mobile.startsWith("+") ? mobile : `+${mobile}`,
+        phoneNumber: `+${callingCode}${mobile}`,
       });
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
@@ -86,14 +91,18 @@ const SignUp = () => {
       </View>
 
       <View style={styles.inputContainer}>
-        <View style={styles.flagWrapper}>
-          <Image
-            source={require("../Images/country.png")}
-            style={styles.flag}
-          />
-        </View>
+        <CountryPicker
+          countryCode={countryCode}
+          withCallingCode
+          withFilter
+          withFlag
+          withCallingCodeButton
+          onSelect={onSelect}
+          containerButtonStyle={{ marginRight: 10 }}
+        />
+        
         <TextInput
-          style={styles.inputWithFlag}
+          style={styles.input}
           placeholder="Mobile Number"
           value={mobile}
           onChangeText={setMobile}
@@ -111,7 +120,11 @@ const SignUp = () => {
         />
         <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
           <Image
-            source={require("../Images/Vector.png")}
+            source={
+              showPassword
+                ? require("../Images/eye-on.png")
+                : require("../Images/eye-off.png")
+            }
             style={styles.iconRight}
           />
         </TouchableOpacity>
@@ -123,11 +136,17 @@ const SignUp = () => {
           placeholder="Confirm Password"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
-          secureTextEntry={!showPassword}
+          secureTextEntry={!showConfirmPassword}
         />
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+        <TouchableOpacity
+          onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+        >
           <Image
-            source={require("../Images/Vector.png")}
+            source={
+              showConfirmPassword
+                ? require("../Images/eye-on.png")
+                : require("../Images/eye-off.png")
+            }
             style={styles.iconRight}
           />
         </TouchableOpacity>
@@ -198,27 +217,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 10,
     paddingHorizontal: 10,
+    height: 60,
   },
   input: {
     flex: 1,
     paddingVertical: 14,
     fontSize: 16,
-    height: 60,
-    width: 336,
-  },
-  inputWithFlag: {
-    flex: 1,
-    paddingVertical: 14,
-    paddingLeft: 10,
-    fontSize: 16,
-  },
-  flagWrapper: {
-    padding: 10,
-  },
-  flag: {
-    width: 24,
-    height: 18,
-    borderRadius: 3,
   },
   iconRight: {
     width: 20,

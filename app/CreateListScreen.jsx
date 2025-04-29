@@ -9,8 +9,9 @@ import {
   Platform,
   Alert,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import { db } from "./firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const CreateListScreen = () => {
   const [listName, setListName] = useState("");
@@ -24,17 +25,13 @@ const CreateListScreen = () => {
     }
 
     const newList = {
-      id: Date.now().toString(),
       name: listName,
       isPublic,
+      createdAt: serverTimestamp(),
     };
 
     try {
-      const storedLists = await AsyncStorage.getItem("summaryLists");
-      const existingLists = storedLists ? JSON.parse(storedLists) : [];
-      const updatedLists = [...existingLists, newList];
-      await AsyncStorage.setItem("summaryLists", JSON.stringify(updatedLists));
-
+      await addDoc(collection(db, "summaryLists"), newList);
       setListName("");
       setIsPublic(true);
       navigation.goBack();
@@ -137,3 +134,4 @@ const styles = StyleSheet.create({
 });
 
 export default CreateListScreen;
+

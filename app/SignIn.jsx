@@ -22,11 +22,15 @@ const SignInScreen = () => {
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
 
-  const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
+  const google = useOAuth({ strategy: "oauth_google" });
+    const apple = useOAuth({ strategy: "oauth_apple" });
+    const facebook = useOAuth({ strategy: "oauth_facebook" });
 
-  const handleOAuth = async (provider) => {
+  const handleOAuth = async (strategy) => {
     try {
-      await startOAuthFlow({ strategy: `oauth_${provider}` });
+      if (strategy === "google") await google.startOAuthFlow();
+      else if (strategy === "apple") await apple.startOAuthFlow();
+      else if (strategy === "facebook") await facebook.startOAuthFlow();
     } catch (err) {
       console.error(`OAuth error:`, err);
     }
@@ -39,7 +43,7 @@ const SignInScreen = () => {
         identifier: emailOrMobile,
         password: password,
       });
-      navigation.navigate("Home"); // Or your target screen after successful login
+      navigation.navigate("MainPage"); // Or your target screen after successful login
     } catch (err) {
       console.error("Sign-in error:", err);
       Alert.alert("Error", err.errors?.[0]?.message || "Something went wrong");
