@@ -10,7 +10,7 @@ import SignIn from '../SignIn';
 import ForgotPasswordScreen from '../ForgotPasswordScreen';
 import PersonalInformation from '../PersonalInformation';
 import LibraryScreen from '../LibraryScreen'; 
-import CreateListScreen from '../CreateListScreen'; 
+
 import MainPage from '../MainPage'
 import InterestArea from '../InterestArea'
 import LinkSummarizer from '../LinkSummarizer'
@@ -33,7 +33,7 @@ const Index = () => {
       <Stack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen} />
       <Stack.Screen name="PersonalInformation" component={PersonalInformation} />  
       <Stack.Screen name="LibraryScreen" component={LibraryScreen} />
-      <Stack.Screen name="CreateListScreen" component={CreateListScreen} />
+     
       <Stack.Screen name="MainPage" component={MainPage} />
       <Stack.Screen name="InterestArea" component={InterestArea} />
       <Stack.Screen name="LinkSummarizer" component={LinkSummarizer} />

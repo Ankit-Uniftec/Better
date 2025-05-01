@@ -138,7 +138,6 @@ const MainPage = () => {
       <ScrollView style={styles.container}>
         {/* Top Bar */}
         <View style={styles.topBar}>
-          
           <View style={styles.searchContainer}>
             <Ionicons
               name="search"
@@ -274,7 +273,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
-    
+
     backgroundColor: "#F1F1F1",
     borderRadius: 15,
     paddingLeft: 10,
@@ -282,7 +281,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    padding:10,
+    padding: 10,
     fontSize: 16,
     color: "#000",
   },
@@ -299,7 +298,6 @@ const styles = StyleSheet.create({
   carouselImage: {
     width: "100%",
     height: "100%",
-    borderRadius: 10,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -325,7 +323,7 @@ const styles = StyleSheet.create({
   },
   thumbnail: {
     width: "100%",
-    height: 90,
+    height: 100,
     borderRadius: 8,
   },
   title: {

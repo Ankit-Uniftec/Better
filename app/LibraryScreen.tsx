@@ -1,16 +1,41 @@
 import React, { useEffect, useState } from 'react';
+import CreateListModal from './CreateListModal';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
   StyleSheet, Image
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons, Feather } from '@expo/vector-icons';
-import { db } from "./firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { db } from './firebase';
+import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore';
 
-const LibraryScreen = () => {
-  const navigation = useNavigation<any>();
-  const [summaryLists, setSummaryLists] = useState([]);
+const YOUTUBE_API_KEY = 'AIzaSyA3pmJmKVoZavaCfbJ3gUM9XxEDyLbG5b0';
+
+import { NavigationProp, ParamListBase } from '@react-navigation/native';
+
+const LibraryScreen: React.FC = () => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
+  const route = useRoute();
+
+  interface SummaryList {
+    id: string;
+    name?: string;
+    createdAt?: any;
+    videos?: string[];
+    [key: string]: any;
+  }
+
+  interface Video {
+    id: string;
+    title: string;
+    thumbnail: string;
+  }
+
+  const [summaryLists, setSummaryLists] = useState<SummaryList[]>([]);
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const [selectedListName, setSelectedListName] = useState<string>('');
+  const [listVideos, setListVideos] = useState<Video[]>([]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -21,7 +46,7 @@ const LibraryScreen = () => {
 
   const loadLists = async () => {
     try {
-      const q = query(collection(db, "summaryLists"), orderBy("createdAt", "desc"));
+      const q = query(collection(db, 'summaryLists'), orderBy('createdAt', 'desc'));
       const snapshot = await getDocs(q);
       const lists = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -33,8 +58,46 @@ const LibraryScreen = () => {
     }
   };
 
-  const chunkArray = (arr, size) => {
-    const chunked = [];
+  const loadVideosForList = async (listId: string, listName: string) => {
+    try {
+      setSelectedListId(listId);
+      setSelectedListName(listName);
+
+      const listRef = doc(db, 'summaryLists', listId);
+      const listDoc = await getDoc(listRef);
+
+      if (!listDoc.exists()) {
+        console.log('List not found');
+        return;
+      }
+
+      const listData = listDoc.data();
+      const videoIds = listData.videos || [];
+
+      if (videoIds.length === 0) {
+        setListVideos([]);
+        return;
+      }
+
+      const response = await fetch(
+        `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoIds.join(',')}&key=${YOUTUBE_API_KEY}`
+      );
+      const data = await response.json();
+
+      const videos = data.items.map((video: any) => ({
+        id: video.id,
+        title: video.snippet.title,
+        thumbnail: video.snippet.thumbnails.medium.url,
+      }));
+
+      setListVideos(videos);
+    } catch (error) {
+      console.error('Failed to load videos:', error);
+    }
+  };
+
+  const chunkArray = <T,>(arr: T[], size: number): T[][] => {
+    const chunked: T[][] = [];
     for (let i = 0; i < arr.length; i += size) {
       chunked.push(arr.slice(i, i + size));
     }
@@ -46,7 +109,11 @@ const LibraryScreen = () => {
     return rows.map((row, rowIndex) => (
       <View key={rowIndex} style={styles.listRow}>
         {row.map((list) => (
-          <TouchableOpacity key={list.id} style={styles.listButton}>
+          <TouchableOpacity
+            key={list.id}
+            style={styles.listButton}
+            onPress={() => loadVideosForList(list.id, list.name || '')}
+          >
             <Text style={styles.listText}>{list.name}</Text>
           </TouchableOpacity>
         ))}
@@ -55,18 +122,48 @@ const LibraryScreen = () => {
     ));
   };
 
+  const renderVideoCards = () => {
+    return (
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>
+            {/* {selectedListName ? `Videos in "${selectedListName}"` : "Videos"} */}
+            Public Lists-Betterfluencers
+          </Text>
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.horizontalScroll}
+        >
+          {listVideos.map((video) => (
+            <TouchableOpacity
+              key={video.id}
+              style={styles.horizontalCard}
+              onPress={() => navigation.navigate("Summarize", { videoId: video.id })}
+            >
+              <Image
+                source={{ uri: video.thumbnail }}
+                style={styles.horizontalCardImage}
+              />
+              <Text numberOfLines={2} style={styles.cardTitle}>
+                {video.title}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  };
+
+
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
         <View style={styles.topBar}>
-
           <View style={styles.searchContainer}>
-            <Ionicons
-              name="search"
-              size={20}
-              color="#aaa"
-              style={{ marginLeft: 8 }}
-            />
+            <Ionicons name="search" size={20} color="#aaa" style={{ marginLeft: 8 }} />
             <TextInput placeholder="Search" style={styles.searchInput} />
           </View>
           <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
@@ -80,24 +177,21 @@ const LibraryScreen = () => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Your Summary Lists</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('CreateListScreen')}>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
               <Text style={styles.addLink}>+ Add List</Text>
             </TouchableOpacity>
           </View>
           {renderListRows()}
         </View>
 
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Public Lists - Betterfluencers</Text>
-            <TouchableOpacity><Text style={styles.addLink}>See more</Text></TouchableOpacity>
-          </View>
-          <View style={styles.cardRow}>
-            <View style={styles.card}><Image style={styles.cardImage} /><Text>Title</Text></View>
-            <View style={styles.card}><Image style={styles.cardImage} /><Text>Title</Text></View>
-          </View>
-        </View>
+        {selectedListId && renderVideoCards()}
       </ScrollView>
+      <CreateListModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onSuccess={loadLists}
+      />
+
       <BottomNavigation />
     </View>
   );
@@ -106,28 +200,33 @@ const LibraryScreen = () => {
 const BottomNavigation = () => {
   const navigation = useNavigation<any>();
   const route = useRoute();
-  const getIconColor = (screenName) => route.name === screenName ? '#007BFF' : '#999';
+  const getIconColor = (screenName: string) => route.name === screenName ? '#007BFF' : '#999';
 
   return (
     <View style={styles.bottomNav}>
       <TouchableOpacity onPress={() => navigation.navigate('MainPage')}>
-        <Ionicons name="home-outline" size={24} color={getIconColor('MainPage')} />
-        <Text style={[styles.navLabel, { color: getIconColor('MainPage') }]}>Home</Text>
+        <View style={{ alignItems: 'center' }}>
+          <Ionicons name="home-outline" size={24} color={getIconColor('MainPage')} />
+          <Text style={[styles.navLabel, { color: getIconColor('MainPage') }]}>Home</Text>
+        </View>
       </TouchableOpacity>
-
       <TouchableOpacity onPress={() => navigation.navigate('LibraryScreen')}>
-        <Ionicons name="library-outline" size={24} color={getIconColor('LibraryScreen')} />
-        <Text style={[styles.navLabel, { color: getIconColor('LibraryScreen') }]}>Library</Text>
+        <View style={{ alignItems: 'center' }}>
+          <Ionicons name="library-outline" size={24} color={getIconColor('LibraryScreen')} />
+          <Text style={[styles.navLabel, { color: getIconColor('LibraryScreen') }]}>Library</Text>
+        </View>
       </TouchableOpacity>
-
       <TouchableOpacity onPress={() => navigation.navigate('LinkSummarizer')}>
-        <Ionicons name="document-text-outline" size={24} color={getIconColor('LinkSummarizer')} />
-        <Text style={[styles.navLabel, { color: getIconColor('LinkSummarizer') }]}>Summarizer</Text>
+        <View style={{ alignItems: 'center' }}>
+          <Ionicons name="document-text-outline" size={24} color={getIconColor('LinkSummarizer')} />
+          <Text style={[styles.navLabel, { color: getIconColor('LinkSummarizer') }]}>Summarizer</Text>
+        </View>
       </TouchableOpacity>
-
       <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-        <Ionicons name="person-outline" size={24} color={getIconColor('Profile')} />
-        <Text style={[styles.navLabel, { color: getIconColor('Profile') }]}>Profile</Text>
+        <View style={{ alignItems: 'center' }}>
+          <Ionicons name="person-outline" size={24} color={getIconColor('Profile')} />
+          <Text style={[styles.navLabel, { color: getIconColor('Profile') }]}>Profile</Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -150,7 +249,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
-
     backgroundColor: "#F1F1F1",
     borderRadius: 15,
     paddingLeft: 10,
@@ -158,7 +256,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    padding:10,
+    padding: 10,
     fontSize: 16,
     color: '#000',
   },
@@ -176,6 +274,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 10,
+    marginHorizontal: 16,
   },
   listButton: {
     flex: 1,
@@ -186,7 +285,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listText: { color: '#fff', fontWeight: '600' },
-  cardRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  cardRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 16,
+    marginBottom: 12,
+  },
   card: {
     width: '48%',
     backgroundColor: '#f5f5f5',
@@ -201,6 +305,31 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
   },
+  horizontalScroll: {
+    paddingHorizontal: 16,
+  },
+  horizontalCard: {
+    width: 160,
+
+    marginRight: 12,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    padding: 8,
+    alignItems: 'center',
+  },
+  horizontalCardImage: {
+    width: '100%',
+    height: 100,
+    borderRadius: 8,
+    marginBottom: 8,
+    backgroundColor: '#dcdcdc',
+  },
+  cardTitle: {
+    textAlign: 'center',
+    fontSize: 14,
+    color: '#333',
+  },
+
   bottomNav: {
     flexDirection: 'row',
     justifyContent: 'space-around',

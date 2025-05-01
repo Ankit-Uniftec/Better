@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
 
 
     bottomNav: {
-        marginTop: height*0.8,
+        marginTop: height*0.865,
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
