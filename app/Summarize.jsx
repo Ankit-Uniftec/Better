@@ -15,8 +15,9 @@ import { useLocalSearchParams } from "expo-router";
 import axios from "axios";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { collection, getDocs, updateDoc, doc, arrayUnion } from "firebase/firestore";
+import { collection, getDocs, updateDoc, doc, arrayUnion, query, where } from "firebase/firestore";
 import { db } from "./firebase";
+import { useUser } from "@clerk/clerk-expo";
 
 const { width, height } = Dimensions.get("window");
 
@@ -56,13 +57,38 @@ const Summarize = () => {
     await sound.playAsync();
   };
 
+  const { user } = useUser();
+
   const fetchLists = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "summaryLists"));
+      if (!user) {
+        Alert.alert("Error", "User not authenticated");
+        return;
+      }
+      // Fetch public lists or private lists owned by current user
+      const listsQuery = query(
+        collection(db, "summaryLists"),
+        where("isPublic", "==", true)
+      );
+      const privateListsQuery = query(
+        collection(db, "summaryLists"),
+        where("isPublic", "==", false),
+        where("ownerId", "==", user.id)
+      );
+
+      const [publicSnapshot, privateSnapshot] = await Promise.all([
+        getDocs(listsQuery),
+        getDocs(privateListsQuery),
+      ]);
+
       const fetchedLists = [];
-      querySnapshot.forEach((doc) => {
+      publicSnapshot.forEach((doc) => {
         fetchedLists.push({ id: doc.id, ...doc.data() });
       });
+      privateSnapshot.forEach((doc) => {
+        fetchedLists.push({ id: doc.id, ...doc.data() });
+      });
+
       setLists(fetchedLists);
     } catch (error) {
       console.error("Error fetching lists:", error);

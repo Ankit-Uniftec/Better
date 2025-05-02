@@ -13,10 +13,13 @@ import {
 } from "react-native";
 import { db } from "./firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { useUser } from "@clerk/clerk-expo";
 const { width, height } = Dimensions.get("window");
 const CreateListModal = ({ visible, onClose, onSuccess }) => {
   const [listName, setListName] = useState("");
   const [isPublic, setIsPublic] = useState(true);
+
+  const { user } = useUser();
 
   const handleCreate = async () => {
     if (!listName.trim()) {
@@ -24,9 +27,15 @@ const CreateListModal = ({ visible, onClose, onSuccess }) => {
       return;
     }
 
+    if (!user) {
+      Alert.alert("Error", "User not authenticated");
+      return;
+    }
+
     const newList = {
       name: listName,
       isPublic,
+      ownerId: user.id,
       createdAt: serverTimestamp(),
     };
 
@@ -180,4 +189,3 @@ const modalStyles = StyleSheet.create({
 });
 
 export default CreateListModal;
-

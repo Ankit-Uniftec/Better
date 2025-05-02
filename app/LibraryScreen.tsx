@@ -7,7 +7,8 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { db } from './firebase';
-import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, getDoc, where } from 'firebase/firestore';
+import { useUser } from '@clerk/clerk-expo';
 
 const YOUTUBE_API_KEY = 'AIzaSyA3pmJmKVoZavaCfbJ3gUM9XxEDyLbG5b0';
 
@@ -37,6 +38,8 @@ const LibraryScreen: React.FC = () => {
   const [selectedListName, setSelectedListName] = useState<string>('');
   const [listVideos, setListVideos] = useState<Video[]>([]);
 
+  const { user } = useUser();
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       loadLists();
@@ -46,12 +49,35 @@ const LibraryScreen: React.FC = () => {
 
   const loadLists = async () => {
     try {
-      const q = query(collection(db, 'summaryLists'), orderBy('createdAt', 'desc'));
-      const snapshot = await getDocs(q);
-      const lists = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      if (!user) {
+        console.error('User not authenticated');
+        return;
+      }
+      // Fetch public lists or private lists owned by current user
+      const publicListsQuery = query(
+        collection(db, 'summaryLists'),
+        where('isPublic', '==', true),
+        orderBy('createdAt', 'desc')
+      );
+      const privateListsQuery = query(
+        collection(db, 'summaryLists'),
+        where('isPublic', '==', false),
+        where('ownerId', '==', user.id)
+      );
+
+      const [publicSnapshot, privateSnapshot] = await Promise.all([
+        getDocs(publicListsQuery),
+        getDocs(privateListsQuery),
+      ]);
+
+      const lists: SummaryList[] = [];
+      publicSnapshot.forEach(doc => {
+        lists.push({ id: doc.id, ...doc.data() });
+      });
+      privateSnapshot.forEach(doc => {
+        lists.push({ id: doc.id, ...doc.data() });
+      });
+
       setSummaryLists(lists);
     } catch (error) {
       console.error('Failed to load lists:', error);
@@ -155,8 +181,6 @@ const LibraryScreen: React.FC = () => {
       </View>
     );
   };
-
-
 
   return (
     <View style={{ flex: 1 }}>
