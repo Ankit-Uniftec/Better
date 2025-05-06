@@ -6,8 +6,10 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
+import { useUser } from "@clerk/clerk-expo";
+
 import { Ionicons, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation,useRoute } from "@react-navigation/native";
 const interestData = [
   [
     { label: "Emotional", icon: <Ionicons name="flower-outline" size={20} /> },
@@ -45,9 +47,12 @@ const interestData = [
   ],
 ];
 
-const InterestArea = () => {
-  const navigation = useNavigation();
 
+const InterestArea = ({route}) => {
+  const {params} = useRoute();
+  const navigation = useNavigation();
+  const { firstName, lastName, gender, birthday } = params || {};
+  const { user } = useUser();
   const [selected, setSelected] = useState([]);
 
   const toggleSelection = (label) => {
@@ -58,10 +63,24 @@ const InterestArea = () => {
     );
   };
 
-  const handleContinue = () => {
-    console.log("Selected Interests:", selected);
-    navigation.navigate("MainPage");
+  const handleContinue = async () => {
+    try {
+      await user.update({
+        unsafeMetadata: {
+          firstName,
+          lastName,
+          gender,
+          birthday,
+          interests: selected,
+        },
+      });
+  
+      navigation.navigate("MainPage");
+    } catch (err) {
+      console.error("Error saving interests:", err);
+    }
   };
+  
 
   return (
     <View style={styles.container}>

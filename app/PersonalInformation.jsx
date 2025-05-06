@@ -37,25 +37,21 @@ const PersonalInformation = () => {
 
   const handleSubmit = async () => {
     try {
-      await user.update({
+      navigation.navigate("InterestArea", {
         firstName,
         lastName,
-        publicMetadata: {
-          gender,
-          birthday,
-        },
+        gender,
+        birthday,
       });
-
-      // Save a flag to AsyncStorage to indicate profile completion
-      await AsyncStorage.setItem("profileComplete", "true");
-
-      // Navigate to MainPage inside components
-      router.replace("/components/MainPage");
+  
+      
     } catch (err) {
       console.log("Error updating profile:", err);
     }
   };
-
+  
+  
+  
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton}>
@@ -139,9 +135,7 @@ const PersonalInformation = () => {
 
       <TouchableOpacity
         style={styles.continueButton}
-        onPress={() => {
-          navigation.navigate("InterestArea");
-        }}
+        onPress={handleSubmit}
       >
         <Text style={styles.continueText}>Continue</Text>
       </TouchableOpacity>

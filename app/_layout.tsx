@@ -1,4 +1,3 @@
-
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -55,11 +54,11 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     if (!isSignedIn) {
       router.replace('/LoginScreen');
     } else {
-      const { firstName, lastName, publicMetadata } = user || {};
-      const { gender, birthday } = publicMetadata || {};
+      const { unsafeMetadata } = user || {};
+const { firstName, lastName, gender, birthday } = unsafeMetadata || {};
 
-      const isProfileComplete =
-        !!firstName && !!lastName && !!gender && !!birthday;
+const isProfileComplete = !!firstName && !!lastName && !!gender && !!birthday;
+
 
       if (!isProfileComplete) {
         router.replace('/PersonalInformation');
@@ -79,3 +78,4 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
+
