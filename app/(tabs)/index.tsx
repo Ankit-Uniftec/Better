@@ -42,6 +42,7 @@ const Index = () => {
       <Stack.Screen name='Setting' component={Setting}/>
       <Stack.Screen name='Signout' component={Signout}/>
       <Stack.Screen name='UploadScreen' component={UploadScreen}/>
+
     </Stack.Navigator>
   );
 };

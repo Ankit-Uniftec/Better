@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,10 +9,20 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { useUser } from "@clerk/clerk-expo";
 
 const { width, height } = Dimensions.get("window");
 const Settings = () => {
   const navigation = useNavigation();
+  const { user } = useUser();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+
+  useEffect(() => {
+    const meta = user.publicMetadata || {};
+    setFirstName(user.firstName || "");
+    setLastName(user.lastName || "");
+  }, []);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -45,8 +55,13 @@ const Settings = () => {
             <Ionicons name="create-outline" size={14} color="#fff" />
           </View>
         </View>
-        <Text style={styles.name}>John Doe</Text>
-        <Text style={styles.username}>@johndoe</Text>
+        <Text style={styles.name}>
+          {firstName} {lastName}
+        </Text>
+        <Text style={styles.username}>
+          @{firstName.toLowerCase()}
+          {lastName.toLowerCase()}
+        </Text>
       </View>
 
       <View style={styles.menu}>
@@ -64,12 +79,7 @@ const Settings = () => {
         ))}
       </View>
 
-      <TouchableOpacity
-        style={styles.supportButton}
-        onPress={() => {
-          navigation.navigate("UploadScreen");
-        }}
-      >
+      <TouchableOpacity style={styles.supportButton}>
         <Text style={styles.supportButtonText}>Contact Support</Text>
       </TouchableOpacity>
 
