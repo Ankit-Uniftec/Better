@@ -10,9 +10,16 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useRoute } from "@react-navigation/native";
+import { useUser } from "@clerk/clerk-expo";
 
 const { width, height } = Dimensions.get("window");
 const GoalSetup = () => {
+   const navigation = useNavigation();
+  const { user } = useUser();
+  const route = useRoute();
+  const { firstName, lastName, gender, birthday, interests } = route.params || {};
+
   const [frequency, setFrequency] = useState("Daily");
   const [count, setCount] = useState(5);
   const [category, setCategory] = useState("");
@@ -23,6 +30,30 @@ const GoalSetup = () => {
     if (type === "decrement" && count > 0) setCount(count - 1);
     if (type === "increment") setCount(count + 1);
   };
+
+  const handleContinue=async ()=>{
+    try{
+      await user.update({
+        unsafeMetadata:{
+          firstName,
+          lastName,
+          gender,
+          birthday,
+          interests,
+          goalFrequency: frequency,
+          goalCount: count,
+          goalCategory: category
+        },
+      });
+      navigation.navigate("MainPage");
+    }
+    catch(err){
+      console.error("Error saving data:", err);
+    }
+
+  };
+
+
 
   return (
     <View style={styles.container}>
@@ -94,37 +125,14 @@ const GoalSetup = () => {
         <Text style={styles.addGoalButtonText}>Add more goals</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.continueButton}>
+      <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
         <Text style={styles.continueButtonText}>Continue</Text>
       </TouchableOpacity>
-      <BottomNavigation />
+      
     </View>
   );
 };
-const BottomNavigation = () => {
-  const navigation = useNavigation();
 
-  return (
-    <View style={styles.bottomNav}>
-      <TouchableOpacity onPress={() => navigation.navigate("Home")}>
-        <Ionicons name="home-outline" size={24} color="#007BFF" />
-        <Text style={styles.navLabel}>Home</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("Library")}>
-        <Ionicons name="library-outline" size={24} color="#999" />
-        <Text style={styles.navLabel}>Library</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("Summarize")}>
-        <Ionicons name="document-text-outline" size={24} color="#999" />
-        <Text style={styles.navLabel}>Summarize</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-        <Ionicons name="person-outline" size={24} color="#999" />
-        <Text style={styles.navLabel}>Profile</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
 const styles = StyleSheet.create({
   container: {
     padding: 24,
@@ -247,21 +255,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "600",
-  },
-
-  bottomNav: {
-    marginTop: height * 0.06,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    paddingVertical: 10,
-    backgroundColor: "#fff",
-  },
-  navLabel: {
-    fontSize: 10,
-    textAlign: "center",
-    color: "#999",
-    marginTop: 2,
   },
 });
 

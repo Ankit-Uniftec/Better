@@ -22,7 +22,7 @@ const Settings = () => {
     const meta = user.publicMetadata || {};
     setFirstName(user.firstName || "");
     setLastName(user.lastName || "");
-  }, []);
+  });
   return (
     <View style={styles.container}>
       <View style={styles.header}>

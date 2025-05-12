@@ -1,18 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { useUser, useAuth } from "@clerk/clerk-expo"; // ✅ Added useAuth
+import { useUser, useAuth } from "@clerk/clerk-expo";
 
 const SignOut = () => {
   const navigation = useNavigation();
   const { user } = useUser();
-  const { signOut } = useAuth(); // ✅ Get signOut method
 
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const { signOut } = useAuth();
+  useEffect(() => {
+    const meta = user.publicMetadata || {};
+    setFirstName(user.firstName || "");
+    setLastName(user.lastName || "");
+  });
   const handleSignOut = async () => {
     try {
-      await signOut(); 
-      navigation.navigate("SignIn"); // ✅ Navigate after signing out
+      await signOut();
+      navigation.navigate("SignIn");
     } catch (error) {
       console.error("Error signing out:", error);
     }
@@ -52,19 +59,25 @@ const SignOut = () => {
             <Ionicons name="pencil" size={12} color="#fff" />
           </TouchableOpacity>
         </View>
-        <Text style={styles.name}>John Doe</Text>
-        <Text style={styles.username}>@johndoe</Text>
+        <Text style={styles.name}>
+          {firstName} {lastName}
+        </Text>
+        <Text style={styles.username}>
+          @{firstName.toLowerCase()}
+          {lastName.toLowerCase()}
+        </Text>
       </View>
 
       {/* Logout Box */}
       <View style={styles.logoutCard}>
-        <Image
-          source={require("../Images/Signout.png")}
-        />
+        <Image source={require("../Images/Signout.png")} />
         <Text style={styles.logoutTitle}>Sign out</Text>
         <Text style={styles.logoutText}>Are you sure you want to log out?</Text>
 
-        <TouchableOpacity style={styles.noButton} onPress={() => navigation.navigate("Setting")}>
+        <TouchableOpacity
+          style={styles.noButton}
+          onPress={() => navigation.navigate("Setting")}
+        >
           <Text style={styles.noButtonText}>No</Text>
         </TouchableOpacity>
 

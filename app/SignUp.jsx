@@ -60,14 +60,14 @@ const SignUp = () => {
       await signUp.create({
         emailAddress: email,
         password: password,
-        phoneNumber: `+${callingCode}${mobile}`,
+        // phoneNumber: `+${callingCode}${mobile}`,
       });
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       Alert.alert("Success", "Check your email to verify your account");
-      navigation.navigate("SignIn");
+      navigation.navigate("EmailVerificationScreen", { email });
     } catch (err) {
-      console.error("Sign-up error:", err);
+      
       Alert.alert("Error", err.errors?.[0]?.message || "Something went wrong");
     }
   };

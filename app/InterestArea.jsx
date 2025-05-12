@@ -63,23 +63,16 @@ const InterestArea = ({route}) => {
     );
   };
 
-  const handleContinue = async () => {
-    try {
-      await user.update({
-        unsafeMetadata: {
-          firstName,
-          lastName,
-          gender,
-          birthday,
-          interests: selected,
-        },
-      });
-  
-      navigation.navigate("MainPage");
-    } catch (err) {
-      console.error("Error saving interests:", err);
-    }
-  };
+ const handleContinue = () => {
+  navigation.navigate("GoalSetup", {
+    firstName,
+    lastName,
+    gender,
+    birthday,
+    interests: selected,
+  });
+};
+
   
 
   return (

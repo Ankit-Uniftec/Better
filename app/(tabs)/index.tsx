@@ -10,7 +10,7 @@ import SignIn from '../SignIn';
 import ForgotPasswordScreen from '../ForgotPasswordScreen';
 import PersonalInformation from '../PersonalInformation';
 import LibraryScreen from '../LibraryScreen'; 
-
+import GoalSetup from '../GoalSetup';
 import MainPage from '../MainPage'
 import InterestArea from '../InterestArea'
 import LinkSummarizer from '../LinkSummarizer'
@@ -18,8 +18,8 @@ import Notification from '../Notification';
 import Profile from '../Profile';
 import Setting from '../Setting';
 import Signout from '../Signout';
-import UploadScreen from '../UploadScreen'
-
+import UploadScreen from '../UploadScreen';
+import EmailVerificationScreen from '../EmailVerificationScreen';
 const Stack = createNativeStackNavigator();
 
 const Index = () => {
@@ -33,7 +33,7 @@ const Index = () => {
       <Stack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen} />
       <Stack.Screen name="PersonalInformation" component={PersonalInformation} />  
       <Stack.Screen name="LibraryScreen" component={LibraryScreen} />
-     
+      <Stack.Screen name='GoalSetup' component={GoalSetup}/>
       <Stack.Screen name="MainPage" component={MainPage} />
       <Stack.Screen name="InterestArea" component={InterestArea} />
       <Stack.Screen name="LinkSummarizer" component={LinkSummarizer} />
@@ -42,6 +42,7 @@ const Index = () => {
       <Stack.Screen name='Setting' component={Setting}/>
       <Stack.Screen name='Signout' component={Signout}/>
       <Stack.Screen name='UploadScreen' component={UploadScreen}/>
+      <Stack.Screen name='EmailVerificationScreen' component={EmailVerificationScreen}/>
 
     </Stack.Navigator>
   );
