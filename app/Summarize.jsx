@@ -15,9 +15,19 @@ import { useLocalSearchParams } from "expo-router";
 import axios from "axios";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { collection, getDocs, updateDoc, doc, arrayUnion, query, where } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  doc,
+  arrayUnion,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "./firebase";
 import { useUser } from "@clerk/clerk-expo";
+import { ScrollView } from "react-native";
+import { setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 
 const { width, height } = Dimensions.get("window");
 
@@ -28,28 +38,67 @@ const Summarize = () => {
   const [takeaways, setTakeaways] = useState("");
   const [detailed, setDetailed] = useState("");
   const [audioUrl, setAudioUrl] = useState(null);
+  const [activeTab, setActiveTab] = useState("summary");
 
   const [modalVisible, setModalVisible] = useState(false);
   const [showExisting, setShowExisting] = useState(false);
   const [lists, setLists] = useState([]);
 
   useEffect(() => {
-    const fetchSummary = async () => {
+    const fetchOrLoadSummary = async () => {
+      if (!videoId || !user) return;
+
       try {
-        const res = await axios.post("https://your-backend-api.com/generate-summary", {
-          videoId,
-        });
-        setSummary(res.data.shortSummary);
-        setDetailed(res.data.detailedSummary);
-        setTakeaways(res.data.takeaways);
-        setAudioUrl(res.data.audioUrl);
-      } catch (err) {
-        console.error("Summary fetch failed:", err);
+        const summaryRef = doc(db, "videoSummaries", videoId);
+        const docSnap = await getDoc(summaryRef);
+
+        if (docSnap.exists()) {
+          // ✅ Use cached data
+          const data = docSnap.data();
+          setSummary(data.summary);
+          setTakeaways(data.takeaways);
+          console.log("Loaded summary from Firestore");
+        } else {
+          // ⏳ Generate new summary
+          const transcriptRes = await axios.post(
+            "http://192.168.1.3:5000/api/transcript",
+            {
+              videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
+            }
+          );
+
+          const transcript = transcriptRes.data.transcript;
+
+          const summaryRes = await axios.post(
+            "http://192.168.1.3:5000/api/summarize",
+            {
+              transcript,
+            }
+          );
+
+          const newSummary = summaryRes.data.summary;
+          const newTakeaways = summaryRes.data.keyTakeaways;
+
+          setSummary(newSummary);
+          setTakeaways(newTakeaways);
+
+          // 💾 Save to Firestore
+          await setDoc(summaryRef, {
+            summary: newSummary,
+            takeaways: newTakeaways,
+            userId: user.id,
+            createdAt: serverTimestamp(),
+          });
+
+          console.log("Saved summary to Firestore");
+        }
+      } catch (error) {
+        console.error("Error in fetching or saving summary:", error);
       }
     };
 
-    fetchSummary();
-  }, [videoId]);
+    fetchOrLoadSummary();
+  }, [videoId, user]);
 
   const playAudio = async () => {
     if (!audioUrl) return;
@@ -135,7 +184,7 @@ const Summarize = () => {
           <TouchableOpacity onPress={playAudio}>
             <Text style={styles.audio}>🎧 34</Text>
           </TouchableOpacity>
-          <View style={{ flexDirection: "row", alignItems: "center"}}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Text style={styles.audioLabel}>Audio Summary</Text>
             <TouchableOpacity onPress={() => setModalVisible(true)}>
               <Text style={{ fontSize: 15, marginLeft: 8 }}>➕</Text>
@@ -143,27 +192,65 @@ const Summarize = () => {
           </View>
         </View>
 
-        <Text style={styles.description}>{summary}</Text>
-
-        <View style={styles.buttonGroup}>
-          <TouchableOpacity style={styles.btn}>
-            <Text>{takeaways ? "✅ " + takeaways : "Loading..."}</Text>
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[
+              styles.tabButton,
+              activeTab === "summary" && styles.activeTab,
+            ]}
+            onPress={() => setActiveTab("summary")}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === "summary" && styles.activeTabText,
+              ]}
+            >
+              Detailed Summary
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.btn}>
-            <Text>{detailed ? "📖 " + detailed : "Loading..."}</Text>
+
+          <TouchableOpacity
+            style={[
+              styles.tabButton,
+              activeTab === "takeaways" && styles.activeTab,
+            ]}
+            onPress={() => setActiveTab("takeaways")}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === "takeaways" && styles.activeTabText,
+              ]}
+            >
+              Key Takeaways
+            </Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.feedbackBox}>
-          <Text style={styles.feedbackText}>Loved the summary?</Text>
-          <View style={styles.feedbackButtons}>
-            <TouchableOpacity style={styles.thumbBtn}>
-              <Text>👍</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.thumbBtn}>
-              <Text>👎</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={{ flex: 1, marginTop: 10 }}>
+          <ScrollView
+            style={{ flex: 1, paddingHorizontal: 10 }}
+            contentContainerStyle={{ paddingBottom: 80 }}
+          >
+            {activeTab === "summary" ? (
+              <>
+                <Text style={styles.sectionTitle}>
+                  Understanding Management
+                </Text>
+                <Text style={styles.description}>
+                  {summary || "Loading summary..."}
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.sectionTitle}>Key Takeaways</Text>
+                <Text style={styles.description}>
+                  {takeaways || "Loading key takeaways..."}
+                </Text>
+              </>
+            )}
+          </ScrollView>
         </View>
       </View>
 
@@ -179,18 +266,22 @@ const Summarize = () => {
                     await fetchLists();
                     setShowExisting(true);
                   }}
-                  style={[styles.btn,{backgroundColor:"#2D82DB"}]}
+                  style={[styles.btn, { backgroundColor: "#2D82DB" }]}
                 >
-                  <Text style={{color:"white",textAlign:"center"}}>Existing List</Text>
+                  <Text style={{ color: "white", textAlign: "center" }}>
+                    Existing List
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
                     setModalVisible(false);
                     navigation.navigate("CreateListScreen", { videoId });
                   }}
-                  style={[styles.btn,{backgroundColor:"#2D82DB"}]}
+                  style={[styles.btn, { backgroundColor: "#2D82DB" }]}
                 >
-                  <Text style={{color:"white",textAlign:"center"}}>Create New List</Text>
+                  <Text style={{ color: "white", textAlign: "center" }}>
+                    Create New List
+                  </Text>
                 </TouchableOpacity>
               </>
             ) : (
@@ -200,8 +291,13 @@ const Summarize = () => {
                   data={lists}
                   keyExtractor={(item) => item.id}
                   renderItem={({ item }) => (
-                    <TouchableOpacity style={[styles.btn,{backgroundColor:"#2D82DB"}]} onPress={() => addToList(item.id)}>
-                      <Text style={{color:"white",textAlign:"center"}}>{item.name}</Text>
+                    <TouchableOpacity
+                      style={[styles.btn, { backgroundColor: "#2D82DB" }]}
+                      onPress={() => addToList(item.id)}
+                    >
+                      <Text style={{ color: "white", textAlign: "center" }}>
+                        {item.name}
+                      </Text>
                     </TouchableOpacity>
                   )}
                 />
@@ -209,19 +305,19 @@ const Summarize = () => {
                   onPress={() => setShowExisting(false)}
                   style={{ marginTop: 10 }}
                 >
-                  <Text style={{fontWeight:800,fontSize:20}}>←</Text>
+                  <Text style={{ fontWeight: 800, fontSize: 20 }}>←</Text>
                 </TouchableOpacity>
               </>
             )}
             <TouchableOpacity
-    style={styles.closeIcon}
-    onPress={() => {
-      setModalVisible(false);
-      setShowExisting(false);
-    }}
-  >
-    <Ionicons name="close" size={24} color="black" />
-  </TouchableOpacity>
+              style={styles.closeIcon}
+              onPress={() => {
+                setModalVisible(false);
+                setShowExisting(false);
+              }}
+            >
+              <Ionicons name="close" size={24} color="black" />
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -234,25 +330,52 @@ const Summarize = () => {
 const BottomNavigation = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const getIconColor = (screenName) => (route.name === screenName ? "#007BFF" : "#999");
+  const getIconColor = (screenName) =>
+    route.name === screenName ? "#007BFF" : "#999";
 
   return (
     <View style={styles.bottomNav}>
       <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
-        <Ionicons name="home-outline" size={24} color={getIconColor("MainPage")} />
-        <Text style={[styles.navLabel, { color: getIconColor("MainPage") }]}>Home</Text>
+        <Ionicons
+          name="home-outline"
+          size={24}
+          color={getIconColor("MainPage")}
+        />
+        <Text style={[styles.navLabel, { color: getIconColor("MainPage") }]}>
+          Home
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate("LibraryScreen")}>
-        <Ionicons name="library-outline" size={24} color={getIconColor("LibraryScreen")} />
-        <Text style={[styles.navLabel, { color: getIconColor("LibraryScreen") }]}>Library</Text>
+        <Ionicons
+          name="library-outline"
+          size={24}
+          color={getIconColor("LibraryScreen")}
+        />
+        <Text
+          style={[styles.navLabel, { color: getIconColor("LibraryScreen") }]}
+        >
+          Library
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate("Summarize")}>
-        <Ionicons name="document-text-outline" size={24} color={getIconColor("Summarize")} />
-        <Text style={[styles.navLabel, { color: getIconColor("Summarize") }]}>Summarize</Text>
+        <Ionicons
+          name="document-text-outline"
+          size={24}
+          color={getIconColor("Summarize")}
+        />
+        <Text style={[styles.navLabel, { color: getIconColor("Summarize") }]}>
+          Summarize
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-        <Ionicons name="person-outline" size={24} color={getIconColor("Profile")} />
-        <Text style={[styles.navLabel, { color: getIconColor("Profile") }]}>Profile</Text>
+        <Ionicons
+          name="person-outline"
+          size={24}
+          color={getIconColor("Profile")}
+        />
+        <Text style={[styles.navLabel, { color: getIconColor("Profile") }]}>
+          Profile
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -268,14 +391,34 @@ const styles = StyleSheet.create({
   },
   headerTitle: { marginLeft: 12, fontSize: 16, fontWeight: "600", flex: 1 },
   headerIcons: { flexDirection: "row", gap: 8, marginLeft: "auto" },
-  content: { marginHorizontal: 16 },
+  content: { marginHorizontal: 16, flex: 1 },
   title: { fontSize: 20, fontWeight: "bold", marginVertical: 10 },
   row: { flexDirection: "row", alignItems: "center", gap: 10 },
   audio: { fontSize: 18 },
   audioLabel: { fontSize: 12, color: "#555" },
-  description: { marginTop: 10, fontSize: 14 },
+
+  description: {
+    marginTop: 10,
+    fontSize: 14,
+
+    fontSize: 15,
+    marginVertical: 4,
+    lineHeight: 22,
+  },
+  tabContent: {
+    flex: 1,
+    paddingHorizontal: 10,
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    marginTop: 10,
+  },
   buttonGroup: { flexDirection: "column", marginTop: 10, gap: 10 },
-  btn: { backgroundColor: "#ddd", padding: 10, borderRadius: 8, marginVertical: 5 },
+  btn: {
+    backgroundColor: "#ddd",
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 5,
+  },
   feedbackBox: {
     marginTop: 20,
     backgroundColor: "#cce5ff",
@@ -285,16 +428,22 @@ const styles = StyleSheet.create({
   feedbackText: { fontWeight: "600", marginBottom: 10 },
   feedbackButtons: { flexDirection: "row", justifyContent: "space-between" },
   thumbBtn: { padding: 10, backgroundColor: "#fff", borderRadius: 6 },
+
   bottomNav: {
-    marginTop: height * 0.12,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
     paddingVertical: 10,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderTopWidth: 1,
-    borderTopColor: '#e6e6e6',
+    borderTopColor: "#e6e6e6",
+    zIndex: 10, // ensure it stays above other elements
   },
+
   navLabel: {
     fontSize: 10,
     textAlign: "center",
@@ -322,6 +471,43 @@ const styles = StyleSheet.create({
     top: 10,
     right: 10,
     zIndex: 10,
+  },
+  tabContainer: {
+    flexDirection: "row",
+    alignSelf: "center",
+    marginBottom: 12,
+    marginTop: 12,
+  },
+
+  tabButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    backgroundColor: "#333",
+    marginHorizontal: 4,
+  },
+
+  activeTab: {
+    backgroundColor: "#2D82DB",
+  },
+
+  tabText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+
+  activeTabText: {
+    color: "#fff",
+  },
+
+  tabContent: {
+    paddingHorizontal: 16,
+  },
+
+  sectionTitle: {
+    fontWeight: "bold",
+    fontSize: 16,
+    marginBottom: 4,
   },
 });
 

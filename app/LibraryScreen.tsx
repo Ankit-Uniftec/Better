@@ -222,35 +222,61 @@ const LibraryScreen: React.FC = () => {
 };
 
 const BottomNavigation = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const route = useRoute();
-  const getIconColor = (screenName: string) => route.name === screenName ? '#007BFF' : '#999';
+
+  const getIconColor = (screenName) => {
+    return route.name === screenName ? "#007BFF" : "#999";
+  };
 
   return (
     <View style={styles.bottomNav}>
-      <TouchableOpacity onPress={() => navigation.navigate('MainPage')}>
-        <View style={{ alignItems: 'center' }}>
-          <Ionicons name="home-outline" size={24} color={getIconColor('MainPage')} />
-          <Text style={[styles.navLabel, { color: getIconColor('MainPage') }]}>Home</Text>
-        </View>
+      <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
+        <Ionicons
+          name="home-outline"
+          size={24}
+          color={getIconColor("MainPage")}
+        />
+        <Text style={[styles.navLabel, { color: getIconColor("MainPage") }]}>
+          Home
+        </Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('LibraryScreen')}>
-        <View style={{ alignItems: 'center' }}>
-          <Ionicons name="library-outline" size={24} color={getIconColor('LibraryScreen')} />
-          <Text style={[styles.navLabel, { color: getIconColor('LibraryScreen') }]}>Library</Text>
-        </View>
+
+      <TouchableOpacity onPress={() => navigation.navigate("LibraryScreen")}>
+        <Ionicons
+          name="library-outline"
+          size={24}
+          color={getIconColor("LibraryScreen")}
+        />
+        <Text
+          style={[styles.navLabel, { color: getIconColor("LibraryScreen") }]}
+        >
+          Library
+        </Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('LinkSummarizer')}>
-        <View style={{ alignItems: 'center' }}>
-          <Ionicons name="document-text-outline" size={24} color={getIconColor('LinkSummarizer')} />
-          <Text style={[styles.navLabel, { color: getIconColor('LinkSummarizer') }]}>Summarizer</Text>
-        </View>
+
+      <TouchableOpacity onPress={() => navigation.navigate("LinkSummarizer")}>
+        <Ionicons
+          name="document-text-outline"
+          size={24}
+          color={getIconColor("LinkSummarizer")}
+        />
+        <Text
+          style={[styles.navLabel, { color: getIconColor("LinkSummarizer") }]}
+        >
+          Summarizer
+        </Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-        <View style={{ alignItems: 'center' }}>
-          <Ionicons name="person-outline" size={24} color={getIconColor('Profile')} />
-          <Text style={[styles.navLabel, { color: getIconColor('Profile') }]}>Profile</Text>
-        </View>
+
+      <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+        <Ionicons
+          name="person-outline"
+          size={24}
+          color={getIconColor("Profile")}
+        />
+        <Text style={[styles.navLabel, { color: getIconColor("Profile") }]}>
+          Profile
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -355,14 +381,19 @@ const styles = StyleSheet.create({
   },
 
   bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingVertical: 10,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e6e6e6',
-  },
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  flexDirection: 'row',
+  justifyContent: 'space-around',
+  alignItems: 'center',
+  paddingVertical: 10,
+  backgroundColor: '#fff',
+  borderTopWidth: 1,
+  borderTopColor: '#e6e6e6',
+  zIndex: 10, // ensure it stays above other elements
+},
   navLabel: {
     fontSize: 10,
     textAlign: 'center',
