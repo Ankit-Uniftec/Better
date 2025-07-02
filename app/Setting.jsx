@@ -10,7 +10,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useUser } from "@clerk/clerk-expo";
-
+import BottomNavigation from './BottomNavigation';
 const { width, height } = Dimensions.get("window");
 const Settings = () => {
   const navigation = useNavigation();
@@ -93,65 +93,7 @@ const Settings = () => {
     </View>
   );
 };
-const BottomNavigation = () => {
-  const navigation = useNavigation();
 
-  const route = useRoute();
-
-  const getIconColor = (screenName: string) => {
-    return route.name === screenName ? "#007BFF" : "#999";
-  };
-
-  return (
-    <View style={styles.bottomNav}>
-      <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
-        <Ionicons
-          name="home-outline"
-          size={24}
-          color={getIconColor("MainPage")}
-        />
-        <Text style={[styles.navLabel, { color: getIconColor("MainPage") }]}>
-          Home
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("LibraryScreen")}>
-        <Ionicons
-          name="library-outline"
-          size={24}
-          color={getIconColor("LibraryScreen")}
-        />
-        <Text
-          style={[styles.navLabel, { color: getIconColor("LibraryScreen") }]}
-        >
-          Library
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("Summarize")}>
-        <Ionicons
-          name="document-text-outline"
-          size={24}
-          color={getIconColor("Summarize")}
-        />
-        <Text style={[styles.navLabel, { color: getIconColor("Summarize") }]}>
-          Summarize
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-        <Ionicons
-          name="person-outline"
-          size={24}
-          color={getIconColor("Profile")}
-        />
-        <Text style={[styles.navLabel, { color: getIconColor("Profile") }]}>
-          Profile
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
 
 const styles = StyleSheet.create({
   container: {
@@ -245,21 +187,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
-  bottomNav: {
-    marginTop: height * 0.07,
-
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    paddingVertical: 10,
-    backgroundColor: "#fff",
-  },
-  navLabel: {
-    fontSize: 10,
-    textAlign: "center",
-    color: "#999",
-    marginTop: 2,
-  },
+ 
 });
 
 export default Settings;
