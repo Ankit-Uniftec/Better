@@ -61,7 +61,7 @@ const Summarize = () => {
         } else {
           // ⏳ Generate new summary
           const transcriptRes = await axios.post(
-            "http://192.168.1.3:5000/api/transcript",
+            "http://192.168.1.2:5000/api/transcript",
             {
               videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
             }
@@ -70,7 +70,7 @@ const Summarize = () => {
           const transcript = transcriptRes.data.transcript;
 
           const summaryRes = await axios.post(
-            "http://192.168.1.3:5000/api/summarize",
+            "http://192.168.1.2:5000/api/summarize",
             {
               transcript,
             }
@@ -246,7 +246,21 @@ const Summarize = () => {
               <>
                 <Text style={styles.sectionTitle}>Key Takeaways</Text>
                 <Text style={styles.description}>
-                  {takeaways || "Loading key takeaways..."}
+                  {takeaways && takeaways.length > 0 ? (
+  takeaways.map((item, index) => (
+    <View key={index} style={{ marginBottom: 12 }}>
+      <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 4 }}>
+        {index + 1}. {item.heading}
+      </Text>
+      <Text style={{ fontSize: 14, lineHeight: 20 }}>
+        {item.content}
+      </Text>
+    </View>
+  ))
+) : (
+  <Text>Loading key takeaways...</Text>
+)}
+
                 </Text>
               </>
             )}
