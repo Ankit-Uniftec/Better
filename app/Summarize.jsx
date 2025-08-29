@@ -61,7 +61,7 @@ const Summarize = () => {
         } else {
           // ⏳ Generate new summary
           const transcriptRes = await axios.post(
-            "http://192.168.1.2:5000/api/transcript",
+            "http://192.168.1.3:5000/api/transcript",
             {
               videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
             }
@@ -70,11 +70,13 @@ const Summarize = () => {
           const transcript = transcriptRes.data.transcript;
 
           const summaryRes = await axios.post(
-            "http://192.168.1.2:5000/api/summarize",
+            "http://192.168.1.3:5000/api/summarize",
             {
               transcript,
             }
           );
+
+         
 
           const newSummary = summaryRes.data.summary;
           const newTakeaways = summaryRes.data.keyTakeaways;
