@@ -3,22 +3,23 @@ import {
   View,
   Text,
   TouchableOpacity,
-  TextInput,
   StyleSheet,
   Dimensions,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useNavigation } from "@react-navigation/native";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import { useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { useUser } from "@clerk/clerk-expo";
+import { db } from "./firebase"; // make sure your firebase.js exports db
+import { doc, setDoc } from "firebase/firestore";
 
 const { width, height } = Dimensions.get("window");
+
 const GoalSetup = () => {
-   const navigation = useNavigation();
+  const navigation = useNavigation();
   const { user } = useUser();
   const route = useRoute();
-  const { firstName, lastName, gender, birthday, interests } = route.params || {};
+  const { firstName, lastName, gender, birthday, interests } =
+    route.params || {};
 
   const [frequency, setFrequency] = useState("Daily");
   const [count, setCount] = useState(5);
@@ -31,29 +32,33 @@ const GoalSetup = () => {
     if (type === "increment") setCount(count + 1);
   };
 
-  const handleContinue=async ()=>{
-    try{
+  const handleContinue = async () => {
+    const userData = {
+      firstName,
+      lastName,
+      gender,
+      birthday,
+      interests,
+      goalFrequency: frequency,
+      goalCount: count,
+      goalCategory: category,
+    };
+
+    try {
+      // 1. Save to Clerk
       await user.update({
-        unsafeMetadata:{
-          firstName,
-          lastName,
-          gender,
-          birthday,
-          interests,
-          goalFrequency: frequency,
-          goalCount: count,
-          goalCategory: category
-        },
+        unsafeMetadata: userData,
       });
+
+      // 2. Save to Firestore
+      const userRef = doc(db, "users", user.id);
+      await setDoc(userRef, userData, { merge: true });
+
       navigation.navigate("MainPage");
-    }
-    catch(err){
+    } catch (err) {
       console.error("Error saving data:", err);
     }
-
   };
-
-
 
   return (
     <View style={styles.container}>
@@ -128,7 +133,6 @@ const GoalSetup = () => {
       <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
         <Text style={styles.continueButtonText}>Continue</Text>
       </TouchableOpacity>
-      
     </View>
   );
 };
@@ -169,7 +173,6 @@ const styles = StyleSheet.create({
   freqButton: {
     flex: 1,
     paddingVertical: 10,
-
     borderRadius: 12,
     alignItems: "center",
   },
@@ -232,11 +235,9 @@ const styles = StyleSheet.create({
   addGoalButton: {
     backgroundColor: "#000",
     paddingVertical: 14,
-    borderRadius: 1,
+    borderRadius: 16,
     alignItems: "center",
     marginVertical: 12,
-
-    borderRadius: 16,
   },
   addGoalButtonText: {
     color: "#fff",

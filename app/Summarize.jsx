@@ -8,12 +8,13 @@ import {
   Modal,
   FlatList,
   Alert,
+  ScrollView,
 } from "react-native";
 import YoutubePlayer from "react-native-youtube-iframe";
 import { Audio } from "expo-av";
 import { useLocalSearchParams } from "expo-router";
 import axios from "axios";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import {
   collection,
@@ -23,20 +24,24 @@ import {
   arrayUnion,
   query,
   where,
+  setDoc,
+  getDoc,
+  increment,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { useUser } from "@clerk/clerk-expo";
-import { ScrollView } from "react-native";
-import { setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import BottomNavigation from './BottomNavigation';
+import BottomNavigation from "./BottomNavigation";
+
 const { width, height } = Dimensions.get("window");
 
 const Summarize = () => {
   const navigation = useNavigation();
   const { videoId } = useLocalSearchParams();
+  const { user } = useUser();
+
   const [summary, setSummary] = useState("");
   const [takeaways, setTakeaways] = useState("");
-  const [detailed, setDetailed] = useState("");
   const [audioUrl, setAudioUrl] = useState(null);
   const [activeTab, setActiveTab] = useState("summary");
 
@@ -53,7 +58,7 @@ const Summarize = () => {
         const docSnap = await getDoc(summaryRef);
 
         if (docSnap.exists()) {
-          // ✅ Use cached data
+          // ✅ Load cached summary
           const data = docSnap.data();
           setSummary(data.summary);
           setTakeaways(data.takeaways);
@@ -61,22 +66,16 @@ const Summarize = () => {
         } else {
           // ⏳ Generate new summary
           const transcriptRes = await axios.post(
-            "http://192.168.1.3:5000/api/transcript",
-            {
-              videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
-            }
+            "http://192.168.1.7:5000/api/transcript",
+            { videoUrl: `https://www.youtube.com/watch?v=${videoId}` }
           );
 
           const transcript = transcriptRes.data.transcript;
 
           const summaryRes = await axios.post(
-            "http://192.168.1.3:5000/api/summarize",
-            {
-              transcript,
-            }
+            "http://192.168.1.7:5000/api/summarize",
+            { transcript }
           );
-
-         
 
           const newSummary = summaryRes.data.summary;
           const newTakeaways = summaryRes.data.keyTakeaways;
@@ -84,7 +83,7 @@ const Summarize = () => {
           setSummary(newSummary);
           setTakeaways(newTakeaways);
 
-          // 💾 Save to Firestore
+          // 💾 Save summary for this video
           await setDoc(summaryRef, {
             summary: newSummary,
             takeaways: newTakeaways,
@@ -94,6 +93,10 @@ const Summarize = () => {
 
           console.log("Saved summary to Firestore");
         }
+
+        // ✅ Track user's completion
+        await trackUserCompletion(videoId, user.id);
+
       } catch (error) {
         console.error("Error in fetching or saving summary:", error);
       }
@@ -102,13 +105,42 @@ const Summarize = () => {
     fetchOrLoadSummary();
   }, [videoId, user]);
 
+  // 🔥 Track per-user completion
+  const trackUserCompletion = async (videoId, userId) => {
+    try {
+      const completionRef = doc(
+        db,
+        "users",
+        userId,
+        "completedSummaries",
+        videoId
+      );
+      const completionSnap = await getDoc(completionRef);
+
+      if (!completionSnap.exists()) {
+        // Mark as completed
+        await setDoc(completionRef, { completedAt: serverTimestamp() });
+
+        // Increment user's counter
+        const userRef = doc(db, "users", userId);
+        await updateDoc(userRef, {
+          summaryCount: increment(1),
+        });
+
+        console.log("✅ User summaryCount incremented");
+      } else {
+        console.log("ℹ️ User already completed this summary, no increment");
+      }
+    } catch (error) {
+      console.error("Error updating user summary count:", error);
+    }
+  };
+
   const playAudio = async () => {
     if (!audioUrl) return;
     const { sound } = await Audio.Sound.createAsync({ uri: audioUrl });
     await sound.playAsync();
   };
-
-  const { user } = useUser();
 
   const fetchLists = async () => {
     try {
@@ -116,7 +148,7 @@ const Summarize = () => {
         Alert.alert("Error", "User not authenticated");
         return;
       }
-      // Fetch public lists or private lists owned by current user
+
       const listsQuery = query(
         collection(db, "summaryLists"),
         where("isPublic", "==", true)
@@ -161,9 +193,10 @@ const Summarize = () => {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
-          <Ionicons name="arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back" size={24} color="#2D82DB" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Summarize</Text>
         <View style={styles.headerIcons}>
@@ -171,13 +204,15 @@ const Summarize = () => {
             <Ionicons name="notifications-outline" size={22} color="black" />
           </TouchableOpacity>
           <TouchableOpacity>
-            <Ionicons name="menu-outline" size={26} color="black" />
+            <Ionicons name="menu-outline" size={26} color="#2D82DB" />
           </TouchableOpacity>
         </View>
       </View>
 
+      {/* Video */}
       <YoutubePlayer height={200} play={false} videoId={videoId} />
 
+      {/* Content */}
       <View style={styles.content}>
         <Text style={styles.title}>Summary Title</Text>
 
@@ -194,18 +229,19 @@ const Summarize = () => {
           </View>
         </View>
 
-        <View style={styles.tabContainer}>
+        {/* Tabs */}
+        <View style={styles.segmentContainer}>
           <TouchableOpacity
             style={[
-              styles.tabButton,
-              activeTab === "summary" && styles.activeTab,
+              styles.segment,
+              activeTab === "summary" && styles.activeSegment,
             ]}
             onPress={() => setActiveTab("summary")}
           >
             <Text
               style={[
-                styles.tabText,
-                activeTab === "summary" && styles.activeTabText,
+                styles.segmentText,
+                activeTab === "summary" && styles.activeSegmentText,
               ]}
             >
               Detailed Summary
@@ -214,21 +250,25 @@ const Summarize = () => {
 
           <TouchableOpacity
             style={[
-              styles.tabButton,
-              activeTab === "takeaways" && styles.activeTab,
+              styles.segment,
+              activeTab === "takeaways" && styles.activeSegment,
             ]}
             onPress={() => setActiveTab("takeaways")}
           >
             <Text
               style={[
-                styles.tabText,
-                activeTab === "takeaways" && styles.activeTabText,
+                styles.segmentText,
+                activeTab === "takeaways" && styles.activeSegmentText,
               ]}
             >
               Key Takeaways
             </Text>
           </TouchableOpacity>
         </View>
+
+
+
+
 
         <View style={{ flex: 1, marginTop: 10 }}>
           <ScrollView
@@ -237,9 +277,7 @@ const Summarize = () => {
           >
             {activeTab === "summary" ? (
               <>
-                <Text style={styles.sectionTitle}>
-                  Understanding Management
-                </Text>
+                <Text style={styles.sectionTitle}>Understanding Management</Text>
                 <Text style={styles.description}>
                   {summary || "Loading summary..."}
                 </Text>
@@ -247,23 +285,26 @@ const Summarize = () => {
             ) : (
               <>
                 <Text style={styles.sectionTitle}>Key Takeaways</Text>
-                <Text style={styles.description}>
-                  {takeaways && takeaways.length > 0 ? (
-  takeaways.map((item, index) => (
-    <View key={index} style={{ marginBottom: 12 }}>
-      <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 4 }}>
-        {index + 1}. {item.heading}
-      </Text>
-      <Text style={{ fontSize: 14, lineHeight: 20 }}>
-        {item.content}
-      </Text>
-    </View>
-  ))
-) : (
-  <Text>Loading key takeaways...</Text>
-)}
-
-                </Text>
+                {takeaways && takeaways.length > 0 ? (
+                  takeaways.map((item, index) => (
+                    <View key={index} style={{ marginBottom: 12 }}>
+                      <Text
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: 16,
+                          marginBottom: 4,
+                        }}
+                      >
+                        {index + 1}. {item.heading}
+                      </Text>
+                      <Text style={{ fontSize: 14, lineHeight: 20 }}>
+                        {item.content}
+                      </Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text>Loading key takeaways...</Text>
+                )}
               </>
             )}
           </ScrollView>
@@ -321,7 +362,7 @@ const Summarize = () => {
                   onPress={() => setShowExisting(false)}
                   style={{ marginTop: 10 }}
                 >
-                  <Text style={{ fontWeight: 800, fontSize: 20 }}>←</Text>
+                  <Text style={{ fontWeight: "800", fontSize: 20 }}>←</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -343,8 +384,6 @@ const Summarize = () => {
   );
 };
 
-
-
 const styles = StyleSheet.create({
   container: { paddingTop: 50, flex: 1 },
   header: {
@@ -360,99 +399,50 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", gap: 10 },
   audio: { fontSize: 18 },
   audioLabel: { fontSize: 12, color: "#555" },
-
-  description: {
-    marginTop: 10,
-    fontSize: 14,
-
-    fontSize: 15,
-    marginVertical: 4,
-    lineHeight: 22,
-  },
-  tabContent: {
-    flex: 1,
-    paddingHorizontal: 10,
-    flexGrow: 1,
-    paddingHorizontal: 16,
-    marginTop: 10,
-  },
-  buttonGroup: { flexDirection: "column", marginTop: 10, gap: 10 },
+  description: { marginTop: 10, fontSize: 15, marginVertical: 4, lineHeight: 22 },
   btn: {
     backgroundColor: "#ddd",
     padding: 10,
     borderRadius: 8,
     marginVertical: 5,
   },
-  feedbackBox: {
-    marginTop: 20,
-    backgroundColor: "#cce5ff",
-    padding: 15,
-    borderRadius: 10,
-  },
-  feedbackText: { fontWeight: "600", marginBottom: 10 },
-  feedbackButtons: { flexDirection: "row", justifyContent: "space-between" },
-  thumbBtn: { padding: 10, backgroundColor: "#fff", borderRadius: 6 },
-
- 
   modalBackground: {
     flex: 1,
     justifyContent: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     padding: 20,
   },
-  modalBox: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 10,
-  },
-  closeIcon: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    zIndex: 10,
-  },
-  tabContainer: {
+  modalBox: { backgroundColor: "white", padding: 20, borderRadius: 10 },
+  modalTitle: { fontSize: 16, fontWeight: "600", marginBottom: 10 },
+  closeIcon: { position: "absolute", top: 10, right: 10, zIndex: 10 },
+  segmentContainer: {
     flexDirection: "row",
     alignSelf: "center",
-    marginBottom: 12,
-    marginTop: 12,
+    backgroundColor: "black", // pill background
+    borderRadius: 25,
+    padding: 2,
+    marginVertical: 12,
   },
-
-  tabButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
-    backgroundColor: "#333",
-    marginHorizontal: 4,
+  segment: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+    borderRadius: 20,
   },
-
-  activeTab: {
+  activeSegment: {
     backgroundColor: "#2D82DB",
   },
-
-  tabText: {
+  segmentText: {
+    color: "white",
+    fontWeight: "600",
+  },
+  activeSegmentText: {
     color: "#fff",
-    fontWeight: "bold",
+    fontWeight: "700",
   },
 
-  activeTabText: {
-    color: "#fff",
-  },
 
-  tabContent: {
-    paddingHorizontal: 16,
-  },
-
-  sectionTitle: {
-    fontWeight: "bold",
-    fontSize: 16,
-    marginBottom: 4,
-  },
+  sectionTitle: { fontWeight: "bold", fontSize: 16, marginBottom: 4 },
 });
 
 export default Summarize;

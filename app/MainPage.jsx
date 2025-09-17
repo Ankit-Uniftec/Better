@@ -151,7 +151,7 @@ const MainPage = () => {
             <Feather name="bell" size={20} color="#000" style={styles.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("Setting")}>
-            <Feather name="menu" size={20} color="#000" style={styles.icon} />
+            <Feather name="menu" size={20} color="#2D82DB" style={styles.icon} />
           </TouchableOpacity>
         </View>
 

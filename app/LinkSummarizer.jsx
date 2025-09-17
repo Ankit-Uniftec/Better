@@ -57,7 +57,7 @@ const LinkSummarizer = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
-          <Ionicons name="arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back" size={24} color="#2D82DB" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Summarize</Text>
         <View style={styles.headerIcons}>
@@ -70,7 +70,7 @@ const LinkSummarizer = () => {
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("Setting")}>
-            <Ionicons name="menu-outline" size={26} color="black" />
+            <Ionicons name="menu-outline" size={26} color="#2D82DB" />
           </TouchableOpacity>
         </View>
       </View>

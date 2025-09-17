@@ -195,7 +195,7 @@ const LibraryScreen: React.FC = () => {
             <Feather name="bell" size={20} color="#000" style={styles.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("Setting")}>
-            <Feather name="menu" size={20} color="#000" style={styles.icon} />
+            <Feather name="menu" size={20} color="#2D82DB" style={styles.icon} />
           </TouchableOpacity>
         </View>
 
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: { fontWeight: 'bold', fontSize: 16 },
-  addLink: { color: '#1E90FF' },
+  addLink: { color: '#2D82DB' },
   listRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

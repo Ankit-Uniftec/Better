@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   selectedButton: {
     backgroundColor: "#e0f0ff",
-    borderColor: "#1e90ff",
+    borderColor: "#2D82DB",
   },
   iconWrapper: {
     marginRight: 8,
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   selectedText: {
-    color: "#1e90ff",
+    color: "#2D82DB",
     fontWeight: "600",
   },
   continueButton: {
