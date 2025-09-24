@@ -9,6 +9,7 @@ import {
   FlatList,
   Alert,
   ScrollView,
+  Button,
 } from "react-native";
 import YoutubePlayer from "react-native-youtube-iframe";
 import { Audio } from "expo-av";
@@ -37,7 +38,7 @@ const { width, height } = Dimensions.get("window");
 
 const Summarize = () => {
   const navigation = useNavigation();
-  const { videoId } = useLocalSearchParams();
+  const { videoId,videoTitle } = useLocalSearchParams();
   const { user } = useUser();
 
   const [summary, setSummary] = useState("");
@@ -198,7 +199,7 @@ const Summarize = () => {
         <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
           <Ionicons name="arrow-back" size={24} color="#2D82DB" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Summarize</Text>
+        <Text style={styles.headerTitle}>Summary</Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
             <Ionicons name="notifications-outline" size={22} color="black" />
@@ -214,17 +215,17 @@ const Summarize = () => {
 
       {/* Content */}
       <View style={styles.content}>
-        <Text style={styles.title}>Summary Title</Text>
+        <Text style={styles.title}>Summary: {videoTitle}</Text>
 
         <View style={styles.row}>
           <Text>❤️ 24</Text>
           <TouchableOpacity onPress={playAudio}>
-            <Text style={styles.audio}>🎧 34</Text>
+            <Text style={styles.audio}>🎧 </Text>
           </TouchableOpacity>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Text style={styles.audioLabel}>Audio Summary</Text>
-            <TouchableOpacity onPress={() => setModalVisible(true)}>
-              <Text style={{ fontSize: 15, marginLeft: 8 }}>➕</Text>
+            <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.listbtn}>
+              <Text style={{ fontSize: 15, marginLeft: 10 }}>Add to list + </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -265,9 +266,6 @@ const Summarize = () => {
             </Text>
           </TouchableOpacity>
         </View>
-
-
-
 
 
         <View style={{ flex: 1, marginTop: 10 }}>
@@ -395,10 +393,15 @@ const styles = StyleSheet.create({
   headerTitle: { marginLeft: 12, fontSize: 16, fontWeight: "600", flex: 1 },
   headerIcons: { flexDirection: "row", gap: 8, marginLeft: "auto" },
   content: { marginHorizontal: 16, flex: 1 },
-  title: { fontSize: 20, fontWeight: "bold", marginVertical: 10 },
+  title: { fontSize: 18, fontWeight: "bold", marginVertical: 10 },
   row: { flexDirection: "row", alignItems: "center", gap: 10 },
   audio: { fontSize: 18 },
   audioLabel: { fontSize: 12, color: "#555" },
+  listbtn:{
+    backgroundColor:'#f1eeeeff',
+    marginLeft:10,
+    borderRadius:16
+  },
   description: { marginTop: 10, fontSize: 15, marginVertical: 4, lineHeight: 22 },
   btn: {
     backgroundColor: "#ddd",

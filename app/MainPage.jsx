@@ -96,7 +96,7 @@ const MainPage = () => {
     <TouchableOpacity
       style={styles.videoCard}
       onPress={() =>
-        navigation.navigate("Summarize", { videoId: item.videoId })
+        navigation.navigate("Summarize", { videoId: item.videoId, videoTitle:item.snippet.title })
       }
     >
       <Image
@@ -176,6 +176,7 @@ const MainPage = () => {
         {/* Trending Section */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Trending</Text>
+          <TouchableOpacity><Text style={{color:'#2D82DB',fontSize:12,}}>See more</Text></TouchableOpacity>
         </View>
         {filteredTrending.length > 0 ? (
           <FlatList
@@ -192,6 +193,7 @@ const MainPage = () => {
         {/* Popular Videos Section */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Popular Videos</Text>
+          <TouchableOpacity><Text style={{color:'#2D82DB',fontSize:12,}}>See more</Text></TouchableOpacity>
         </View>
         {filteredPopular.length > 0 ? (
           <FlatList
@@ -266,11 +268,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   videoCard: {
-    width: 160,
+    marginTop:5,
+    width: 172,
     marginHorizontal: 8,
     backgroundColor: "#F4F4F4",
     borderRadius: 10,
-    padding: 8,
+    
   },
   thumbnail: {
     width: "100%",
@@ -278,10 +281,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   title: {
-    marginTop: 6,
+    
     fontWeight: "500",
     fontSize: 13,
     color: "#000",
+    padding:8,
   },
 });
 

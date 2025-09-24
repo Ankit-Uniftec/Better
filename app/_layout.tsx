@@ -52,7 +52,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     if (!authLoaded || !userLoaded) return;
 
     if (!isSignedIn) {
-      router.replace('/LoginScreen');
+      router.replace('/OnboardingScreen1');
     } else {
       const { unsafeMetadata } = user || {};
 const { firstName, lastName, gender, birthday } = unsafeMetadata || {};

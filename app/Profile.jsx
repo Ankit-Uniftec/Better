@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from "react-native";
-import { BarChart, Grid } from "react-native-svg-charts";
+import { BarChart, YAxis, Grid } from "react-native-svg-charts";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import BottomNavigation from "./BottomNavigation";
 import { useUser } from "@clerk/clerk-expo";
 import { db } from "./firebase";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
+import { Rect } from "react-native-svg";
+import { max } from "d3-array";
 
 const Profile = () => {
   const navigation = useNavigation();
@@ -14,37 +16,25 @@ const Profile = () => {
 
   const [firestoreData, setFirestoreData] = useState(null);
   const [summariesByDay, setSummariesByDay] = useState([0, 0, 0, 0, 0, 0, 0]);
+  const currentDay = new Date().getDay(); // 0 = Sunday, 6 = Saturday
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user) return;
 
       try {
-        // 🔹 Fetch profile data
         const ref = doc(db, "users", user.id);
         const snap = await getDoc(ref);
+
         if (snap.exists()) {
-          setFirestoreData(snap.data());
+          const data = snap.data();
+          setFirestoreData(data);
+
+          // Set total summaryCount to today's bar
+          const counts = [0, 0, 0, 0, 0, 0, 0];
+          counts[currentDay] = data.summaryCount || 0;
+          setSummariesByDay(counts);
         }
-
-        // 🔹 Fetch user's completed summaries
-        const q = query(
-          collection(db, "videoSummaries"),
-          where("userId", "==", user.id)
-        );
-        const querySnap = await getDocs(q);
-
-        // Count summaries per day of week (0=Sun .. 6=Sat)
-        const counts = [0, 0, 0, 0, 0, 0, 0];
-        querySnap.forEach((docSnap) => {
-          const data = docSnap.data();
-          if (data.createdAt?.toDate) {
-            const day = data.createdAt.toDate().getDay();
-            counts[day] += 1;
-          }
-        });
-
-        setSummariesByDay(counts);
       } catch (err) {
         console.error("Error fetching user profile:", err);
       }
@@ -53,7 +43,6 @@ const Profile = () => {
     fetchUserData();
   }, [user]);
 
-  // Clerk + Firestore fields
   const name = `${user?.firstName || firestoreData?.firstName || "User"} ${
     user?.lastName || firestoreData?.lastName || ""
   }`.trim();
@@ -62,8 +51,10 @@ const Profile = () => {
     ? new Date(user.createdAt).toLocaleDateString()
     : "N/A";
 
-  // ✅ Goals array from Firestore
   const goals = firestoreData?.goals || [];
+
+  // Determine max for Y-axis scaling
+  const maxCount = Math.max(...summariesByDay, 1); // at least 1 to avoid zero scale
 
   return (
     <View style={styles.container}>
@@ -72,7 +63,7 @@ const Profile = () => {
         <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
           <Ionicons name="arrow-back" size={24} color="#2D82DB" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Summarize</Text>
+        <Text style={styles.headerTitle}>Your Profile</Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
             <Ionicons name="notifications-outline" size={22} color="black" />
@@ -109,17 +100,44 @@ const Profile = () => {
           summaries this week.
         </Text>
 
-        <BarChart
-          style={styles.chart}
-          data={summariesByDay}
-          svg={{ fill: "#2D82DB" }}
-          spacingInner={0.4}
-          contentInset={{ top: 10, bottom: 10 }}
-          gridMin={0}
-        >
-          <Grid />
-        </BarChart>
+        {/* Bar Chart with YAxis */}
+        <View style={{ flexDirection: "row", height: 150, marginHorizontal: 16 }}>
+  <YAxis
+    data={[0,1,2,3,4,5,6,7,8,9,10]} // fixed Y-axis labels
+    contentInset={{ top: 20, bottom: 20 }}
+    numberOfTicks={11} // 0..10
+    svg={{ fontSize: 12, fill: "#333" }}
+    min={0}
+    max={10}
+  />
+  <BarChart
+    style={{ flex: 1, marginLeft: 8 }}
+    data={summariesByDay}
+    svg={{ fill: "#2D82DB" }}
+    spacingInner={0.4}
+    contentInset={{ top: 20, bottom: 20 }}
+    gridMin={0}
+    gridMax={10} // scale bars according to 0-10
+    yAccessor={({ item }) => item}
+  >
+    {({ x, y, width, height, data }) =>
+      data.map((value, index) => (
+        <Rect
+          key={index}
+          x={x(index)}
+          y={y(value)}
+          width={width(0.8)}
+          height={height(value)}
+          fill={index === currentDay ? "#FFA500" : "#2D82DB"}
+        />
+      ))
+    }
+    <Grid />
+  </BarChart>
+</View>
 
+
+        {/* Day Labels */}
         <View style={styles.dayLabels}>
           {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
             <Text key={i} style={styles.dayText}>
@@ -163,58 +181,26 @@ const Profile = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", paddingTop: 50 },
-  header: {
-    marginHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 30,
-  },
+  header: { marginHorizontal: 16, flexDirection: "row", alignItems: "center", marginBottom: 30 },
   headerTitle: { marginLeft: 12, fontSize: 16, fontWeight: "600", flex: 1 },
   headerIcons: { flexDirection: "row", gap: 8, marginLeft: "auto" },
-  profileSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 20,
-    marginHorizontal: 16,
-  },
+  profileSection: { flexDirection: "row", alignItems: "center", marginVertical: 20, marginHorizontal: 16 },
   profileImage: { width: 60, height: 60, borderRadius: 30 },
   profileText: { marginLeft: 12 },
   name: { fontSize: 16, fontWeight: "600" },
   joinDate: { color: "#666" },
-  editButton: {
-    marginLeft: "auto",
-    backgroundColor: "#2D82DB",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
+  editButton: { marginLeft: "auto", backgroundColor: "#2D82DB", paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
   editText: { color: "#fff", fontWeight: "500" },
   progressSection: { marginVertical: 20, marginHorizontal: 16 },
   subHeading: { fontSize: 16, fontWeight: "600", marginBottom: 6 },
   goalStatus: { marginBottom: 12 },
   highlight: { color: "#2D82DB", fontWeight: "bold" },
-  chart: { height: 120 },
-  dayLabels: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginHorizontal: 8,
-    marginTop: 6,
-  },
+  dayLabels: { flexDirection: "row", justifyContent: "space-between", marginHorizontal: 8, marginTop: 6 },
   dayText: { color: "#333" },
   goalsSection: { marginTop: 30, marginHorizontal: 16 },
-  goalItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-  },
+  goalItem: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 12 },
   goalText: { fontSize: 16 },
-  badge: {
-    backgroundColor: "#333",
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-  },
+  badge: { backgroundColor: "#333", borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4 },
   badgeText: { color: "#fff", fontSize: 12 },
 });
 

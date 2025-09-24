@@ -55,10 +55,10 @@ const PersonalInformation = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton}>
-        <Text style={styles.backArrow}>←</Text>
+        <Text style={styles.backArrow}>˂</Text>
       </TouchableOpacity>
 
-      <Text style={styles.title}>Tell us more about yourself</Text>
+      <Text style={styles.title}>Tell us more about {`\n`} yourself</Text>
       <Text style={styles.subtitle}>
         Please enter your details. This information will be used to personalize
         your account.
@@ -150,23 +150,36 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     backgroundColor: "#fff",
+    
   },
   backButton: {
+    marginTop:20,
     marginBottom: 20,
+    backgroundColor: "#2D82DB",
+    height:25,
+    width:25,
+    borderRadius:100,
+
+    alignItems: "center",
+  justifyContent: "center",
+    
   },
   backArrow: {
     fontSize: 24,
-    color: "#377DFF",
+    color: "white",
+    textAlign: "center",   // ensures text/icon is centered
+  lineHeight: 30,  
+    
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
     color: "#666",
-    marginBottom: 24,
+    
   },
   label: {
     fontWeight: "600",
@@ -207,12 +220,12 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   genderTextSelected: {
-    color: "#377DFF",
+    color: "#2D82DB",
     fontWeight: "600",
   },
   continueButton: {
     backgroundColor: "#2D82DB",
-    borderRadius: 12,
+    borderRadius: 16,
     marginTop: 32,
     paddingVertical: 16,
     alignItems: "center",

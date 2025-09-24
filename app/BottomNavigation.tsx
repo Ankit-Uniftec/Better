@@ -1,14 +1,22 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
+
+// Define your stack's param list
+type RootStackParamList = {
+  MainPage: undefined;
+  LibraryScreen: undefined;
+  LinkSummarizer: undefined;
+  Profile: undefined;
+};
 
 const BottomNavigation = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute();
 
   const getIconColor = (screenName: string) => {
-    return route.name === screenName ? "#007BFF" : "#999";
+    return route.name === screenName ? "#2D82DB" : "#999";
   };
 
   return (
@@ -26,7 +34,7 @@ const BottomNavigation = () => {
 
       <TouchableOpacity onPress={() => navigation.navigate("LibraryScreen")}>
         <Ionicons
-          name="library-outline"
+          name="search-outline"
           size={24}
           color={getIconColor("LibraryScreen")}
         />
@@ -39,14 +47,14 @@ const BottomNavigation = () => {
 
       <TouchableOpacity onPress={() => navigation.navigate("LinkSummarizer")}>
         <Ionicons
-          name="document-text-outline"
+          name="chatbox-outline"
           size={24}
           color={getIconColor("LinkSummarizer")}
         />
         <Text
           style={[styles.navLabel, { color: getIconColor("LinkSummarizer") }]}
         >
-          Summarizer
+          Summarize
         </Text>
       </TouchableOpacity>
 

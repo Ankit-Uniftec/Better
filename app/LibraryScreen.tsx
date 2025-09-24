@@ -163,6 +163,7 @@ const LibraryScreen: React.FC = () => {
             {/* {selectedListName ? `Videos in "${selectedListName}"` : "Videos"} */}
             {selectedListName ? `${selectedListName} Lists-Betterfluencers` : "Videos"}
           </Text>
+          <TouchableOpacity><Text style={{color:'#2D82DB',fontSize:12,}}>See more</Text></TouchableOpacity>
         </View>
         <ScrollView
           horizontal
@@ -315,25 +316,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   horizontalCard: {
-    width: 160,
-
-    marginRight: 12,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 12,
-    padding: 8,
-    alignItems: 'center',
+   marginTop:5,
+    width: 171,
+    marginHorizontal: 8,
+    backgroundColor: "#F4F4F4",
+    borderRadius: 10,
   },
   horizontalCardImage: {
-    width: '100%',
+   width: "100%",
     height: 100,
     borderRadius: 8,
-    marginBottom: 8,
-    backgroundColor: '#dcdcdc',
   },
   cardTitle: {
-    textAlign: 'center',
-    fontSize: 14,
-    color: '#333',
+    fontWeight: "500",
+    fontSize: 13,
+    color: "#000",
+    padding:8,
   },
 });
 

@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   continueButton: {
     backgroundColor: "#2D82DB",
     width: 340,
-    borderRadius: 10,
+    borderRadius: 16,
     paddingVertical: 14,
     alignItems: "center",
     marginTop: "auto",

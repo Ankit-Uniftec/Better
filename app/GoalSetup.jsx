@@ -57,25 +57,32 @@ const GoalSetup = () => {
 
   // save all goals + user info
   const handleContinue = async () => {
-    const userData = {
-      firstName,
-      lastName,
-      gender,
-      birthday,
-      interests,
-      goals, // ✅ save array of goals instead of one
-    };
+  // include current goal if user didn't click "Add more goals"
+  let allGoals = [...goals];
+  if (category || count || frequency) {
+    allGoals.push({ frequency, count, category });
+  }
 
-    try {
-      await user.update({ unsafeMetadata: userData });
-      const userRef = doc(db, "users", user.id);
-      await setDoc(userRef, userData, { merge: true });
-
-      navigation.navigate("MainPage");
-    } catch (err) {
-      console.error("Error saving data:", err);
-    }
+  const userData = {
+    firstName,
+    lastName,
+    gender,
+    birthday,
+    interests,
+    goals: allGoals, // ✅ updated
   };
+
+  try {
+    await user.update({ unsafeMetadata: userData });
+    const userRef = doc(db, "users", user.id);
+    await setDoc(userRef, userData, { merge: true });
+
+    navigation.navigate("MainPage");
+  } catch (err) {
+    console.error("Error saving data:", err);
+  }
+};
+
 
   return (
     <View style={styles.container}>
@@ -182,7 +189,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "600",
     textAlign: "center",
-    marginVertical: 12,
+    marginVertical: 15,
   },
   subtitle: {
     fontSize: 14,
@@ -191,7 +198,7 @@ const styles = StyleSheet.create({
     color: "#555",
   },
   label: {
-    fontSize: 16,
+    fontSize: 14,
     marginTop: 20,
     marginBottom: 8,
     fontWeight: "500",
@@ -302,4 +309,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default GoalSetup;
+export default GoalSetup; 

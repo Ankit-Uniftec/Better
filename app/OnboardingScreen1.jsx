@@ -28,6 +28,13 @@ const OnboardingScreen = () => {
     "No time for long videos or books? No problem. Better breaks down key takeaways into short, text and audio summaries so you can learn and grow faster.",
   ];
 
+  // 👇 Add your images array
+  const images = [
+    require("../Images/onboarding1.png"),
+    require("../Images/onboarding2.png"),
+    require("../Images/onboarding3.png"),
+  ];
+
   const handleNext = () => {
     if (index < titles.length - 1) {
       setIndex(index + 1);
@@ -41,6 +48,11 @@ const OnboardingScreen = () => {
       {/* Fixed Header */}
       <View style={styles.header}>
         <Image source={require("../Images/logo1.png")} style={styles.logo} />
+      </View>
+
+      {/* 👇 Onboarding Image (changes with index) */}
+      <View style={styles.imageWrapper}>
+        <Image source={images[index]} style={styles.onboardImage} />
       </View>
 
       {/* Carousel Text */}
@@ -61,18 +73,12 @@ const OnboardingScreen = () => {
           ))}
         </Swiper>
 
-        {/* Fixed Buttons Below Text */}
+        {/* Button */}
         <TouchableOpacity style={styles.button} onPress={handleNext}>
           <Text style={styles.buttonText}>
-            {index === 0 ? "Get started →" : "Continue"}
+            {index === titles.length - 1 ? "Continue" : "Get started →"}
           </Text>
         </TouchableOpacity>
-
-        {/* {index === 1 && (
-          <TouchableOpacity onPress={() => navigation.navigate('LoginScreen')}>
-            <Text style={styles.skip}>Skip</Text>
-          </TouchableOpacity>
-        )} */}
       </View>
     </View>
   );
@@ -86,7 +92,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   header: {
-    backgroundColor: "#6ca9ee",
+    backgroundColor: "#2D82DB",
     width: width * 1.5,
     height: height * 0.45,
     borderBottomRightRadius: 300,
@@ -101,16 +107,27 @@ const styles = StyleSheet.create({
   },
   logo: {
     position: "absolute",
-    top: 83, // Y position
+    top: 83,
     left: width * 0.65,
     width: 85,
     height: 25,
     resizeMode: "contain",
-
-    marginTop: 10,
+  },
+  imageWrapper: {
+    marginTop: height * 0.18,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex:1,
+    
+  },
+  onboardImage: {
+    width: 220,
+    height: 220,
+    resizeMode: "contain",
+    
   },
   carouselContainer: {
-    marginTop: height * 0.45,
+    marginTop: height * 0.05,
     flex: 1,
     paddingHorizontal: 24,
     justifyContent: "flex-start",
@@ -142,7 +159,7 @@ const styles = StyleSheet.create({
     marginTop: height * 0.04,
   },
   activeDot: {
-    backgroundColor: "#1A73E8",
+    backgroundColor: "#2D82DB",
     width: 16,
     height: 8,
     borderRadius: 4,
@@ -162,11 +179,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     fontSize: 16,
-  },
-  skip: {
-    marginTop: 1,
-    color: "#1A73E8",
-    fontSize: 14,
-    textAlign: "center",
   },
 });
