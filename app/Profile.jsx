@@ -1,19 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from "react-native";
 import { BarChart, Grid } from "react-native-svg-charts";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import BottomNavigation from "./BottomNavigation";
 import { useUser } from "@clerk/clerk-expo";
 import { db } from "./firebase";
-import {
-  doc,
-  getDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 
 const Profile = () => {
   const navigation = useNavigation();
@@ -69,15 +62,8 @@ const Profile = () => {
     ? new Date(user.createdAt).toLocaleDateString()
     : "N/A";
 
-  // Goal data
-  const goalCount = firestoreData?.goalCount || 0;
-  const goalFrequency = firestoreData?.goalFrequency || "Not set";
-  const goalCategory = firestoreData?.goalCategory || "General";
-
-  // ✅ Calculate daily goals completed
-  const completedGoals = summariesByDay.filter(
-    (count) => count >= goalCount && goalCount > 0
-  ).length;
+  // ✅ Goals array from Firestore
+  const goals = firestoreData?.goals || [];
 
   return (
     <View style={styles.container}>
@@ -117,8 +103,10 @@ const Profile = () => {
         <Text style={styles.subHeading}>This Week’s Progress</Text>
         <Text style={styles.goalStatus}>
           You’ve completed{" "}
-          <Text style={styles.highlight}>{completedGoals}</Text> out of 7 daily
-          goals.
+          <Text style={styles.highlight}>
+            {summariesByDay.reduce((a, b) => a + b, 0)}
+          </Text>{" "}
+          summaries this week.
         </Text>
 
         <BarChart
@@ -144,14 +132,28 @@ const Profile = () => {
       {/* Goals */}
       <View style={styles.goalsSection}>
         <Text style={styles.subHeading}>Your Goals</Text>
-        <View style={styles.goalItem}>
-          <Text style={styles.goalText}>
-            🔥 {goalCount} summaries ({goalCategory})
+
+        {goals.length > 0 ? (
+          <FlatList
+            data={goals}
+            keyExtractor={(_, index) => index.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.goalItem}>
+                <Text style={styles.goalText}>
+                  🔥 {item.count} summaries{" "}
+                  {item.category ? `(${item.category})` : ""}
+                </Text>
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{item.frequency}</Text>
+                </View>
+              </View>
+            )}
+          />
+        ) : (
+          <Text style={{ color: "#666", marginTop: 10 }}>
+            No goals set yet.
           </Text>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{goalFrequency}</Text>
-          </View>
-        </View>
+        )}
       </View>
 
       <BottomNavigation />

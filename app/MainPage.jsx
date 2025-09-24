@@ -17,16 +17,18 @@ import { db } from "./firebase";
 import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
 import axios from "axios";
 import BottomNavigation from './BottomNavigation';
+
 const { width, height } = Dimensions.get("window");
 
 const MainPage = () => {
   const [trending, setTrending] = useState([]);
   const [popular, setPopular] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(""); // ✅ search state
   const navigation = useNavigation();
 
   // Fetch video title using the YouTube API
   const getVideoTitle = async (videoId) => {
-    const apiKey = "AIzaSyA3pmJmKVoZavaCfbJ3gUM9XxEDyLbG5b0"; // Replace with your YouTube API key
+    const apiKey = "AIzaSyA3pmJmKVoZavaCfbJ3gUM9XxEDyLbG5b0";
     const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`;
 
     try {
@@ -37,7 +39,7 @@ const MainPage = () => {
     } catch (error) {
       console.error("Error fetching video title:", error);
     }
-    return videoId; // Fallback to videoId if title is not found
+    return videoId;
   };
 
   useEffect(() => {
@@ -50,13 +52,13 @@ const MainPage = () => {
         const data = doc.data();
         const videoId = extractVideoId(data.videoUrl);
         if (videoId && data.category) {
-          const title = await getVideoTitle(videoId); // Fetch the title dynamically
+          const title = await getVideoTitle(videoId);
 
           const video = {
             id: doc.id,
             videoId,
             snippet: {
-              title: title || videoId, // Use videoId if title is not found
+              title: title || videoId,
               thumbnails: {
                 medium: {
                   url: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
@@ -133,6 +135,14 @@ const MainPage = () => {
     </ScrollView>
   );
 
+  // ✅ Filter videos by search
+  const filteredTrending = trending.filter((v) =>
+    v.snippet.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const filteredPopular = popular.filter((v) =>
+    v.snippet.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
@@ -145,7 +155,12 @@ const MainPage = () => {
               color="#aaa"
               style={{ marginLeft: 8 }}
             />
-            <TextInput placeholder="Search" style={styles.searchInput} />
+            <TextInput
+              placeholder="Search videos"
+              style={styles.searchInput}
+              value={searchQuery}              // ✅ bind state
+              onChangeText={setSearchQuery}    // ✅ update search
+            />
           </View>
           <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
             <Feather name="bell" size={20} color="#000" style={styles.icon} />
@@ -156,37 +171,39 @@ const MainPage = () => {
         </View>
 
         {/* Carousel */}
-        <CarouselComponent videos={trending} />
+        <CarouselComponent videos={filteredTrending.length ? filteredTrending : trending} />
 
         {/* Trending Section */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Trending</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeMore}>See more</Text>
-          </TouchableOpacity>
         </View>
-        <FlatList
-          data={trending}
-          renderItem={renderVideoCard}
-          keyExtractor={(item) => item.videoId}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        />
+        {filteredTrending.length > 0 ? (
+          <FlatList
+            data={filteredTrending}
+            renderItem={renderVideoCard}
+            keyExtractor={(item) => item.videoId}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+          />
+        ) : (
+          <Text style={{ marginLeft: 16, color: "#666" }}>No trending videos found</Text>
+        )}
 
         {/* Popular Videos Section */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Popular Videos</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeMore}>See more</Text>
-          </TouchableOpacity>
         </View>
-        <FlatList
-          data={popular}
-          renderItem={renderVideoCard}
-          keyExtractor={(item) => item.videoId + "_pop"}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        />
+        {filteredPopular.length > 0 ? (
+          <FlatList
+            data={filteredPopular}
+            renderItem={renderVideoCard}
+            keyExtractor={(item) => item.videoId + "_pop"}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+          />
+        ) : (
+          <Text style={{ marginLeft: 16, color: "#666" }}>No popular videos found</Text>
+        )}
       </ScrollView>
 
       {/* Bottom Navigation */}
@@ -194,8 +211,6 @@ const MainPage = () => {
     </View>
   );
 };
-
-
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", paddingTop: 50 },
@@ -214,7 +229,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
-
     backgroundColor: "#F1F1F1",
     borderRadius: 15,
     paddingLeft: 10,
@@ -251,10 +265,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  seeMore: {
-    fontSize: 14,
-    color: "#007BFF",
-  },
   videoCard: {
     width: 160,
     marginHorizontal: 8,
@@ -273,7 +283,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#000",
   },
-  
 });
 
 export default MainPage;

@@ -38,6 +38,7 @@ const LibraryScreen: React.FC = () => {
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [selectedListName, setSelectedListName] = useState<string>('');
   const [listVideos, setListVideos] = useState<Video[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");   // ✅ search state
 
   const { user } = useUser();
 
@@ -54,7 +55,7 @@ const LibraryScreen: React.FC = () => {
         console.error('User not authenticated');
         return;
       }
-      // Fetch public lists or private lists owned by current user
+
       const publicListsQuery = query(
         collection(db, 'summaryLists'),
         where('isPublic', '==', true),
@@ -150,12 +151,17 @@ const LibraryScreen: React.FC = () => {
   };
 
   const renderVideoCards = () => {
+    // ✅ filter videos by search
+    const filteredVideos = listVideos.filter(video =>
+      video.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>
             {/* {selectedListName ? `Videos in "${selectedListName}"` : "Videos"} */}
-            Public Lists-Betterfluencers
+            {selectedListName ? `${selectedListName} Lists-Betterfluencers` : "Videos"}
           </Text>
         </View>
         <ScrollView
@@ -163,7 +169,7 @@ const LibraryScreen: React.FC = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.horizontalScroll}
         >
-          {listVideos.map((video) => (
+          {filteredVideos.map((video) => (
             <TouchableOpacity
               key={video.id}
               style={styles.horizontalCard}
@@ -178,6 +184,9 @@ const LibraryScreen: React.FC = () => {
               </Text>
             </TouchableOpacity>
           ))}
+          {filteredVideos.length === 0 && (
+            <Text style={{ marginLeft: 16, color: "#666" }}>No videos found</Text>
+          )}
         </ScrollView>
       </View>
     );
@@ -189,7 +198,12 @@ const LibraryScreen: React.FC = () => {
         <View style={styles.topBar}>
           <View style={styles.searchContainer}>
             <Ionicons name="search" size={20} color="#aaa" style={{ marginLeft: 8 }} />
-            <TextInput placeholder="Search" style={styles.searchInput} />
+            <TextInput
+              placeholder="Search"
+              style={styles.searchInput}
+              value={searchQuery}                // ✅ bind search value
+              onChangeText={setSearchQuery}      // ✅ update on change
+            />
           </View>
           <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
             <Feather name="bell" size={20} color="#000" style={styles.icon} />
@@ -221,6 +235,7 @@ const LibraryScreen: React.FC = () => {
     </View>
   );
 };
+
 
 
 const styles = StyleSheet.create({
@@ -323,3 +338,6 @@ const styles = StyleSheet.create({
 });
 
 export default LibraryScreen;
+
+
+

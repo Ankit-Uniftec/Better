@@ -5,11 +5,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  FlatList,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useUser } from "@clerk/clerk-expo";
-import { db } from "./firebase"; // make sure your firebase.js exports db
+import { db } from "./firebase";
 import { doc, setDoc } from "firebase/firestore";
 
 const { width, height } = Dimensions.get("window");
@@ -21,6 +22,10 @@ const GoalSetup = () => {
   const { firstName, lastName, gender, birthday, interests } =
     route.params || {};
 
+  // list of all goals
+  const [goals, setGoals] = useState([]);
+
+  // single goal input
   const [frequency, setFrequency] = useState("Daily");
   const [count, setCount] = useState(5);
   const [category, setCategory] = useState("");
@@ -32,6 +37,25 @@ const GoalSetup = () => {
     if (type === "increment") setCount(count + 1);
   };
 
+  // add current goal to list
+  const handleAddGoal = () => {
+    if (!frequency || !count) return;
+
+    const newGoal = {
+      frequency,
+      count,
+      category,
+    };
+
+    setGoals([...goals, newGoal]);
+
+    // reset input
+    setFrequency("Daily");
+    setCount(5);
+    setCategory("");
+  };
+
+  // save all goals + user info
   const handleContinue = async () => {
     const userData = {
       firstName,
@@ -39,18 +63,11 @@ const GoalSetup = () => {
       gender,
       birthday,
       interests,
-      goalFrequency: frequency,
-      goalCount: count,
-      goalCategory: category,
+      goals, // ✅ save array of goals instead of one
     };
 
     try {
-      // 1. Save to Clerk
-      await user.update({
-        unsafeMetadata: userData,
-      });
-
-      // 2. Save to Firestore
+      await user.update({ unsafeMetadata: userData });
       const userRef = doc(db, "users", user.id);
       await setDoc(userRef, userData, { merge: true });
 
@@ -126,9 +143,25 @@ const GoalSetup = () => {
         </Picker>
       </View>
 
-      <TouchableOpacity style={styles.addGoalButton}>
+      <TouchableOpacity style={styles.addGoalButton} onPress={handleAddGoal}>
         <Text style={styles.addGoalButtonText}>Add more goals</Text>
       </TouchableOpacity>
+
+      {/* ✅ Display added goals */}
+      {goals.length > 0 && (
+        <FlatList
+          data={goals}
+          keyExtractor={(_, index) => index.toString()}
+          renderItem={({ item, index }) => (
+            <View style={styles.goalItem}>
+              <Text style={styles.goalText}>
+                {index + 1}. {item.frequency} - {item.count} summaries{" "}
+                {item.category ? `(${item.category})` : ""}
+              </Text>
+            </View>
+          )}
+        />
+      )}
 
       <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
         <Text style={styles.continueButtonText}>Continue</Text>
@@ -243,6 +276,16 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     fontSize: 14,
+  },
+  goalItem: {
+    backgroundColor: "#f2f2f2",
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 5,
+  },
+  goalText: {
+    fontSize: 14,
+    fontWeight: "500",
   },
   continueButton: {
     backgroundColor: "#2D82DB",
